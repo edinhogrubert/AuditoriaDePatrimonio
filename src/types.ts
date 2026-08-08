@@ -1,0 +1,52 @@
+export type BatchType = 'COLLECTION' | 'VERIFICATION';
+
+export interface Batch {
+  id: number;
+  name: string;
+  description: string;
+  type: BatchType;
+  timestamp: number;
+}
+
+export interface ScanItem {
+  id: number;
+  batchId: number;
+  barcode: string;
+  format: string;
+  timestamp: number;
+}
+
+export interface ExpectedItem {
+  id: number;
+  batchId: number;
+  barcode: string;
+  description?: string;
+  category?: string;
+  isFound: boolean;
+  timestampFound?: number;
+}
+
+export type Screen =
+  | 'menu'
+  | 'scan'
+  | 'sequential_scan'
+  | 'batch_list'
+  | 'new_batch'
+  | 'batch_scan'
+  | 'batch_details'
+  | 'import_inventory'
+  | 'qr_import'
+  | 'verification_scan'
+  | 'audit_results'
+  | 'export_batches'
+  | 'settings';
+
+export interface AppSettings {
+  soundEnabled: boolean;
+  vibrationEnabled: boolean;
+  continuousScan: boolean;
+  scanBeep: boolean;
+  cameraResolution: string;
+  autoRemoveDuplicates: boolean;
+  theme: 'light' | 'dark';
+}

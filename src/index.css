@@ -1,0 +1,92 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Dark Mode (Default) */
+  --bg-primary: #0A0D14;
+  --bg-secondary: #1A1F26;
+  --bg-accent: #002b59;
+  --bg-gradient: linear-gradient(180deg, #0A0D14 0%, #05070A 100%);
+  --text-primary: #FFFFFF;
+  --text-secondary: #9CA3AF;
+  --text-dim: #6B7280;
+  --border-color: rgba(255, 255, 255, 0.08);
+  --card-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+  --color-emerald: #10B981;
+  --color-blue: #3B82F6;
+  --color-red: #EF4444;
+}
+
+.light-mode {
+  --bg-primary: #F0F4FF;
+  --bg-secondary: #FFFFFF;
+  --bg-accent: #E5EEFF;
+  --bg-gradient: linear-gradient(180deg, #F0F4FF 0%, #FFFFFF 100%);
+  --text-primary: #0B1C30;
+  --text-secondary: #43474F;
+  --text-dim: #737780;
+  --border-color: rgba(0, 43, 89, 0.05);
+  --card-shadow: 0 15px 35px -5px rgba(0, 43, 89, 0.08), 0 5px 15px -3px rgba(0, 43, 89, 0.03);
+  --color-emerald: #059669;
+  --color-blue: #2563EB;
+  --color-red: #DC2626;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg-gradient);
+  color: var(--text-primary);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  overflow-x: hidden;
+  transition: background 0.4s ease, color 0.3s ease;
+  min-height: 100vh;
+}
+
+/* Monospace font utility */
+.font-mono-code {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--text-dim);
+  border-radius: 9999px;
+  opacity: 0.3;
+}
+
+/* Scanner Transparency */
+html.barcode-scanner-active,
+html.barcode-scanner-active body,
+body.barcode-scanner-active,
+body.barcode-scanner-active #root,
+body.barcode-scanner-active main,
+body.barcode-scanner-active footer {
+  background: transparent !important;
+}
+
+/* Soft Elevation for Cards */
+.card-elevated {
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--card-shadow);
+    border-radius: 1.5rem;
+}
+
+.button-gradient-primary {
+    background: linear-gradient(135deg, var(--color-blue) 0%, #1D4ED8 100%);
+}
+
+.button-gradient-success {
+    background: linear-gradient(135deg, var(--color-emerald) 0%, #059669 100%);
+}
