@@ -6,6 +6,9 @@ export interface Batch {
   description: string;
   type: BatchType;
   timestamp: number;
+  isClosed?: boolean;
+  closedReason?: string;
+  closedAt?: number;
 }
 
 export interface ScanItem {
@@ -31,6 +34,8 @@ export type Screen =
   | 'scan'
   | 'sequential_scan'
   | 'batch_list'
+  | 'general_reports'
+  | 'assets_list'
   | 'new_batch'
   | 'batch_scan'
   | 'batch_details'
@@ -41,6 +46,8 @@ export type Screen =
   | 'export_batches'
   | 'settings';
 
+export type DeletePermission = 'LOCKED' | 'ONCE' | 'ALWAYS';
+
 export interface AppSettings {
   soundEnabled: boolean;
   vibrationEnabled: boolean;
@@ -49,4 +56,5 @@ export interface AppSettings {
   cameraResolution: string;
   autoRemoveDuplicates: boolean;
   theme: 'light' | 'dark';
+  deletePermission: DeletePermission;
 }

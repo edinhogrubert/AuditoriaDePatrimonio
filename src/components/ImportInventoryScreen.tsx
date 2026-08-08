@@ -141,7 +141,7 @@ export const ImportInventoryScreen: React.FC<ImportInventoryScreenProps> = ({
 
       <main className="p-6 space-y-7 flex-1 overflow-y-auto custom-scrollbar">
         <div className="space-y-6">
-          <section className="card-elevated p-6 space-y-4 shadow-lg border-blue-500/10">
+          <section className="card-elevated p-6 space-y-4 shadow-lg border-[var(--color-blue)]/10">
             <label className="text-[10px] font-black text-[var(--color-blue)] uppercase tracking-[0.2em] block ml-1">Identificação da Auditoria</label>
             <div className="relative">
                 <input
@@ -161,12 +161,12 @@ export const ImportInventoryScreen: React.FC<ImportInventoryScreenProps> = ({
           <section className={`space-y-4 pt-2 transition-all duration-500 ${(!batchName.trim() && !targetBatchId) ? 'opacity-20 pointer-events-none grayscale' : 'opacity-100'}`}>
             <h2 className="text-[10px] font-black text-[var(--text-secondary)] uppercase tracking-[0.2em] px-1">Método de Entrada</h2>
 
-            <button onClick={() => { setSelectedMethod('csv'); fileInputRef.current?.click(); }} className="w-full card-elevated p-6 flex flex-col items-start gap-4 transition-all active:scale-[0.98] shadow-md border-blue-500/5 group hover:border-[var(--color-blue)]/20">
+            <button onClick={() => { setSelectedMethod('csv'); fileInputRef.current?.click(); }} className="w-full card-elevated p-6 flex flex-col items-start gap-4 transition-all active:scale-[0.98] shadow-md border-[var(--color-blue)]/5 group hover:border-[var(--color-blue)]/20">
                 <div className="bg-[var(--color-blue)]/10 text-[var(--color-blue)] rounded-2xl p-3 border border-[var(--color-blue)]/20 shadow-sm transition-transform group-hover:scale-110"><FileUp className="w-7 h-7" /></div>
                 <div className="text-left"><span className="text-base font-black uppercase tracking-tight block">Planilha Eletrônica (CSV)</span><span className="text-xs text-[var(--text-secondary)] mt-1 font-medium block">Importar de sistemas legados ou ERP</span></div>
             </button>
 
-            <button onClick={() => onNavigateQrImport(batchName, targetBatchId || undefined)} className="w-full card-elevated p-6 flex flex-col items-start gap-4 transition-all active:scale-[0.98] shadow-md border-emerald-500/5 group hover:border-[var(--color-emerald)]/20">
+            <button onClick={() => onNavigateQrImport(batchName, targetBatchId || undefined)} className="w-full card-elevated p-6 flex flex-col items-start gap-4 transition-all active:scale-[0.98] shadow-md border-[var(--color-emerald)]/5 group hover:border-[var(--color-emerald)]/20">
                 <div className="bg-[var(--color-emerald)]/10 text-[var(--color-emerald)] rounded-2xl p-3 border border-[var(--color-emerald)]/20 shadow-sm transition-transform group-hover:scale-110"><QrCode className="w-7 h-7" /></div>
                 <div className="text-left"><span className="text-base font-black uppercase tracking-tight block">Leitura de QR Mestre</span><span className="text-xs text-[var(--text-secondary)] mt-1 font-medium block">Captura direta de listas por scanner</span></div>
             </button>
@@ -180,9 +180,9 @@ export const ImportInventoryScreen: React.FC<ImportInventoryScreenProps> = ({
              <div className="flex flex-col items-center text-center gap-3">
                  <div className="w-16 h-16 rounded-[1.5rem] bg-[var(--color-blue)]/10 text-[var(--color-blue)] flex items-center justify-center border border-[var(--color-blue)]/20 shadow-inner"><FileCheck className="w-8 h-8" /></div>
                  <h3 className="text-lg font-black uppercase tracking-tight truncate w-full">{csvFileName}</h3>
-                 <span className="text-[10px] font-black bg-[var(--color-blue)] text-white px-4 py-1 rounded-full shadow-lg shadow-blue-900/20">{csvParsedItems.length} ATIVOS DETECTADOS</span>
+                 <span className="text-[10px] font-black bg-[var(--color-blue)] text-white px-4 py-1 rounded-full shadow-lg shadow-[var(--card-shadow)]">{csvParsedItems.length} ATIVOS DETECTADOS</span>
              </div>
-             <button onClick={handleConfirmImport} className="w-full py-5 button-gradient-primary text-white rounded-[1.25rem] font-black text-sm uppercase tracking-[0.2em] shadow-xl shadow-blue-900/20 active:scale-95 transition-all">Confirmar e Abrir</button>
+             <button onClick={handleConfirmImport} className="w-full py-5 button-gradient-primary text-white rounded-[1.25rem] font-black text-sm uppercase tracking-[0.2em] shadow-xl shadow-[var(--card-shadow)] active:scale-95 transition-all">Confirmar e Abrir</button>
              <button onClick={() => setCsvFileName(null)} className="w-full text-[10px] font-black uppercase text-[var(--text-dim)] tracking-widest hover:text-[var(--color-red)]">Cancelar Seleção</button>
           </div>
         )}

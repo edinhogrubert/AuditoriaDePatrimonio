@@ -22,6 +22,8 @@ interface BatchListScreenProps {
   onBatchClick: (batch: Batch) => void;
   onDeleteBatch: (batchId: number) => void;
   onExportClick: () => void;
+  initialFilter?: 'ALL' | 'COLLECTION' | 'VERIFICATION' | 'PENDING' | 'COMPLETED';
+  hideQuickActions?: boolean;
 }
 
 export const BatchListScreen: React.FC<BatchListScreenProps> = ({
@@ -32,13 +34,33 @@ export const BatchListScreen: React.FC<BatchListScreenProps> = ({
   onBatchClick,
   onDeleteBatch,
   onExportClick,
+  initialFilter = 'ALL',
+  hideQuickActions = false,
 }) => {
-  const [filterType, setFilterType] = useState<'ALL' | 'COLLECTION' | 'VERIFICATION'>('ALL');
+  const [filterType, setFilterType] = useState<'ALL' | 'COLLECTION' | 'VERIFICATION' | 'PENDING' | 'COMPLETED'>(initialFilter);
 
   const filteredBatches = batches.filter((b) => {
     if (filterType === 'ALL') return true;
-    return b.type === filterType;
+    if (filterType === 'COLLECTION') return b.type === 'COLLECTION';
+    if (filterType === 'VERIFICATION') return b.type === 'VERIFICATION';
+
+    const stats = getAuditStatsForBatch(b.id);
+    if (filterType === 'PENDING') {
+      return b.type === 'VERIFICATION' && stats.progressPercent < 100;
+    }
+    if (filterType === 'COMPLETED') {
+      return b.type === 'VERIFICATION' && stats.progressPercent >= 100;
+    }
+    return true;
   });
+
+  const getTitle = () => {
+    if (filterType === 'PENDING') return 'Auditorias Pendentes';
+    if (filterType === 'COMPLETED') return 'Auditorias Completas';
+    return 'Arquivos';
+  };
+
+  const showActions = !hideQuickActions && filterType !== 'PENDING' && filterType !== 'COMPLETED';
 
   return (
     <div className="min-h-screen text-[var(--text-primary)] flex flex-col max-w-md mx-auto p-6 select-none relative pb-10 shadow-xl border-x border-[var(--border-color)]">
@@ -51,11 +73,11 @@ export const BatchListScreen: React.FC<BatchListScreenProps> = ({
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
-          <h1 className="text-xl font-black uppercase tracking-tight">Arquivos</h1>
+          <h1 className="text-xl font-black uppercase tracking-tight">{getTitle()}</h1>
         </div>
         <button
           onClick={onExportClick}
-          className="p-2.5 rounded-full bg-purple-500/10 text-purple-500 border border-purple-500/20 active:scale-95 transition-all shadow-sm"
+          className="p-2.5 rounded-full bg-[var(--bg-accent)]/10 text-[var(--color-blue)] border border-[var(--border-color)] active:scale-95 transition-all shadow-sm"
           title="Exportar Múltiplos"
         >
           <Download className="w-5 h-5" />
@@ -64,47 +86,57 @@ export const BatchListScreen: React.FC<BatchListScreenProps> = ({
 
       <div className="py-6 space-y-6 flex-1 overflow-hidden flex flex-col">
         {/* Quick Action Row */}
-        <div className="grid grid-cols-2 gap-3 shrink-0">
-          <button
-            onClick={onNewBatchClick}
-            className="card-elevated p-5 flex flex-col items-start gap-3 transition-all active:scale-95 border-purple-500/10"
-          >
-            <div className="w-11 h-11 rounded-[1rem] bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-500 shadow-sm">
-              <Plus className="w-6 h-6" />
-            </div>
-            <div>
-              <h3 className="text-[11px] font-black uppercase tracking-widest text-purple-500">Lote Vazio</h3>
-              <p className="text-[10px] text-[var(--text-secondary)] mt-1 font-medium">Coleta do zero</p>
-            </div>
-          </button>
+        {showActions && (
+          <div className="grid grid-cols-2 gap-3 shrink-0">
+            <button
+              onClick={onNewBatchClick}
+              className="card-elevated p-5 flex flex-col items-start gap-3 transition-all active:scale-95 border-[var(--color-blue)]/10"
+            >
+              <div className="w-11 h-11 rounded-[1rem] bg-[var(--color-blue)]/10 border border-[var(--color-blue)]/20 flex items-center justify-center text-[var(--color-blue)] shadow-sm">
+                <Plus className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="text-[11px] font-black uppercase tracking-widest text-[var(--color-blue)]">Lote Vazio</h3>
+                <p className="text-[10px] text-[var(--text-secondary)] mt-1 font-medium">Coleta do zero</p>
+              </div>
+            </button>
 
-          <button
-            onClick={onImportInventoryClick}
-            className="card-elevated p-5 flex flex-col items-start gap-3 transition-all active:scale-95 border-blue-500/10"
-          >
-            <div className="w-11 h-11 rounded-[1rem] bg-[var(--color-blue)]/10 border border-[var(--color-blue)]/20 flex items-center justify-center text-[var(--color-blue)] shadow-sm">
-              <FileUp className="w-6 h-6" />
-            </div>
-            <div>
-              <h3 className="text-[11px] font-black uppercase tracking-widest text-[var(--color-blue)]">Importar</h3>
-              <p className="text-[10px] text-[var(--text-secondary)] mt-1 font-medium">Lista de bens</p>
-            </div>
-          </button>
-        </div>
+            <button
+              onClick={onImportInventoryClick}
+              className="card-elevated p-5 flex flex-col items-start gap-3 transition-all active:scale-95 border-blue-500/10"
+            >
+              <div className="w-11 h-11 rounded-[1rem] bg-[var(--color-blue)]/10 border border-[var(--color-blue)]/20 flex items-center justify-center text-[var(--color-blue)] shadow-sm">
+                <FileUp className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="text-[11px] font-black uppercase tracking-widest text-[var(--color-blue)]">Importar</h3>
+                <p className="text-[10px] text-[var(--text-secondary)] mt-1 font-medium">Lista de bens</p>
+              </div>
+            </button>
+          </div>
+        )}
 
         {/* Custom Tabs */}
-        <div className="flex gap-2 p-1.5 bg-[var(--bg-secondary)] rounded-2xl border border-[var(--border-color)] shadow-inner shrink-0">
-          {(['ALL', 'COLLECTION', 'VERIFICATION'] as const).map((type) => (
+        <div className="flex gap-2 p-1.5 bg-[var(--bg-secondary)] rounded-2xl border border-[var(--border-color)] shadow-inner shrink-0 overflow-x-auto no-scrollbar">
+          {(
+            [
+              { id: 'ALL', label: 'Todos' },
+              { id: 'PENDING', label: 'Pendentes' },
+              { id: 'COMPLETED', label: 'Completas' },
+              { id: 'COLLECTION', label: 'Simples' },
+              { id: 'VERIFICATION', label: 'Auditoria' },
+            ] as const
+          ).map((tab) => (
             <button
-              key={type}
-              onClick={() => setFilterType(type)}
-              className={`flex-1 py-2.5 text-[9px] font-black uppercase tracking-[0.15em] rounded-xl transition-all duration-200 ${
-                filterType === type
-                ? (type === 'VERIFICATION' ? 'bg-[var(--color-blue)]' : type === 'COLLECTION' ? 'bg-purple-500' : 'bg-[var(--text-primary)] text-[var(--bg-primary)]') + ' text-white shadow-lg'
+              key={tab.id}
+              onClick={() => setFilterType(tab.id)}
+              className={`min-w-[80px] py-2.5 text-[9px] font-black uppercase tracking-[0.15em] rounded-xl transition-all duration-200 ${
+                filterType === tab.id
+                ? (tab.id === 'VERIFICATION' ? 'bg-[var(--color-blue)]' : tab.id === 'COLLECTION' || tab.id === 'PENDING' || tab.id === 'COMPLETED' ? 'bg-[var(--color-emerald)]' : 'bg-[var(--text-primary)] text-[var(--bg-primary)]') + ' text-white shadow-lg'
                 : 'text-[var(--text-dim)] hover:text-[var(--text-primary)]'
               }`}
             >
-              {type === 'ALL' ? 'Todos' : type === 'COLLECTION' ? 'Simples' : 'Auditoria'}
+              {tab.label}
             </button>
           ))}
         </div>
@@ -126,13 +158,13 @@ export const BatchListScreen: React.FC<BatchListScreenProps> = ({
               return (
                 <div
                   key={batch.id}
-                  className={`card-elevated p-5 flex items-center justify-between gap-5 transition-all hover:border-[var(--text-dim)] group shadow-md ${isVerification ? 'border-blue-500/10' : 'border-purple-500/10'}`}
+                  className={`card-elevated p-5 flex items-center justify-between gap-5 transition-all hover:border-[var(--text-dim)] group shadow-md ${isVerification ? 'border-blue-500/10' : 'border-[var(--color-blue)]/10'}`}
                 >
                   <div
                     onClick={() => onBatchClick(batch)}
                     className="flex items-center gap-4 flex-1 min-w-0 cursor-pointer"
                   >
-                    <div className={`w-14 h-14 rounded-[1.25rem] flex items-center justify-center shrink-0 border transition-transform group-active:scale-95 ${isVerification ? 'bg-[var(--color-blue)]/10 text-[var(--color-blue)] border-[var(--color-blue)]/20' : 'bg-purple-500/10 text-purple-500 border-purple-500/20'}`}>
+                    <div className={`w-14 h-14 rounded-[1.25rem] flex items-center justify-center shrink-0 border transition-transform group-active:scale-95 ${isVerification ? 'bg-[var(--color-blue)]/10 text-[var(--color-blue)] border-[var(--color-blue)]/20' : 'bg-[var(--color-emerald)]/10 text-[var(--color-emerald)] border-[var(--color-emerald)]/20'}`}>
                       {isVerification ? <SearchCheck className="w-7 h-7" /> : <Package className="w-7 h-7" />}
                     </div>
 

@@ -13,10 +13,10 @@ import {
   Play,
   Package,
 } from 'lucide-react';
-import { getStoredBatches, getStoredScanItems, getAuditStatsForBatch, formatDateStr } from '../services/storage';
+import { getStoredBatches, getStoredScanItems, getAuditStatsForBatch, formatDateStr, getAllAssetRecords } from '../services/storage';
 
 interface MainScreenProps {
-  onNavigate: (screen: string) => void;
+  onNavigate: (screen: string, filter?: string) => void;
   onOpenBatchDetails?: (batchId: number) => void;
 }
 
@@ -24,12 +24,12 @@ export const MainScreen: React.FC<MainScreenProps> = ({ onNavigate, onOpenBatchD
   const [activeModal, setActiveModal] = useState<'pending' | 'completed' | 'items' | null>(null);
   
   const batches = getStoredBatches();
-  const scanItems = getStoredScanItems();
+  const allAssetRecords = getAllAssetRecords();
 
-  const totalItemsCount = scanItems.length;
-  const formattedItemsCount = totalItemsCount > 999 
-    ? `${(totalItemsCount / 1000).toFixed(1)}k` 
-    : totalItemsCount.toString();
+  const totalAssetsCount = allAssetRecords.length;
+  const formattedAssetsCount = totalAssetsCount > 999
+    ? `${(totalAssetsCount / 1000).toFixed(1)}k`
+    : totalAssetsCount.toString();
 
   const verificationBatches = batches.filter((b) => b.type === 'VERIFICATION');
   let completedCount = 0;
@@ -60,7 +60,7 @@ export const MainScreen: React.FC<MainScreenProps> = ({ onNavigate, onOpenBatchD
       <header className="bg-[var(--bg-secondary)] border-b border-[var(--border-color)] px-4 h-16 flex items-center justify-between sticky top-0 z-50 shadow-sm transition-colors">
         <div className="flex items-center gap-3">
           <div className="flex flex-col items-center justify-center">
-            <div className="w-8 h-8 rounded-full bg-[var(--bg-accent)] text-white flex items-center justify-center font-bold text-xs shadow-sm overflow-hidden border border-white/10">
+            <div className="w-8 h-8 rounded-full bg-[var(--bg-accent)] text-white flex items-center justify-center font-bold text-xs shadow-sm overflow-hidden border border-[var(--border-color)]">
               <span className="font-extrabold text-sm">EGS</span>
             </div>
             <span className="text-[8px] font-black text-[var(--text-secondary)] uppercase tracking-[0.2em] mt-0.5 ml-0.5">Grubert</span>
@@ -78,75 +78,75 @@ export const MainScreen: React.FC<MainScreenProps> = ({ onNavigate, onOpenBatchD
       </header>
 
       {/* Main Content */}
-      <main className="p-5 space-y-7 flex-1">
+      <main className="p-4 space-y-6 flex-1">
         
         {/* Summary Cards Grid */}
-        <section className="grid grid-cols-3 gap-3">
+        <section className="grid grid-cols-3 gap-2.5">
           <button
-            onClick={() => setActiveModal('pending')}
-            className="bg-[#5d3900]/10 text-[#ffddb8] card-elevated p-4 flex flex-col items-center justify-center relative overflow-hidden group active:scale-95 duration-200 border-orange-500/10"
+            onClick={() => onNavigate('batch_list', 'PENDING')}
+            className="bg-orange-500/10 text-orange-400 card-elevated p-3.5 flex flex-col items-center justify-center relative overflow-hidden group active:scale-95 duration-150 border-orange-500/10"
           >
             <Clock className="w-6 h-6 mb-1 text-orange-400 opacity-90 group-hover:scale-110 transition-transform" />
-            <span className="text-2xl font-black text-orange-400 leading-none">{displayPending}</span>
-            <span className="text-[9px] font-black mt-1 uppercase tracking-widest opacity-60">Pendentes</span>
+            <span className="text-2xl font-extrabold text-orange-400 leading-none">{displayPending}</span>
+            <span className="text-[10px] font-bold mt-1 uppercase tracking-tighter opacity-70">Pendentes</span>
           </button>
 
           <button
-            onClick={() => setActiveModal('completed')}
-            className="bg-[var(--color-emerald)]/10 text-[var(--color-emerald)] card-elevated p-4 flex flex-col items-center justify-center relative overflow-hidden group active:scale-95 duration-200 border-emerald-500/10"
+            onClick={() => onNavigate('batch_list', 'COMPLETED')}
+            className="bg-[var(--color-emerald)]/10 text-[var(--color-emerald)] card-elevated p-3.5 flex flex-col items-center justify-center relative overflow-hidden group active:scale-95 duration-150 border-emerald-500/10"
           >
             <CheckCircle2 className="w-6 h-6 mb-1 opacity-90 group-hover:scale-110 transition-transform" />
-            <span className="text-2xl font-black leading-none">{displayCompleted}</span>
-            <span className="text-[9px] font-black mt-1 uppercase tracking-widest opacity-60">Completas</span>
+            <span className="text-2xl font-extrabold leading-none">{displayCompleted}</span>
+            <span className="text-[10px] font-bold mt-1 uppercase tracking-tighter opacity-70">Completas</span>
           </button>
 
           <button
-            onClick={() => setActiveModal('items')}
-            className="bg-[var(--color-blue)]/10 text-[var(--color-blue)] card-elevated p-4 flex flex-col items-center justify-center relative overflow-hidden group active:scale-95 duration-200 border-blue-500/10"
+            onClick={() => onNavigate('assets_list')}
+            className="bg-[var(--color-blue)]/10 text-[var(--color-blue)] card-elevated p-3.5 flex flex-col items-center justify-center relative overflow-hidden group active:scale-95 duration-150 border-blue-500/10"
           >
             <Boxes className="w-6 h-6 mb-1 opacity-90 group-hover:scale-110 transition-transform" />
-            <span className="text-2xl font-black leading-none">{formattedItemsCount}</span>
-            <span className="text-[9px] font-black mt-1 uppercase tracking-widest opacity-60">Ativos</span>
+            <span className="text-2xl font-extrabold leading-none">{formattedAssetsCount}</span>
+            <span className="text-[10px] font-bold mt-1 uppercase tracking-tighter opacity-70">Ativos</span>
           </button>
         </section>
 
         {/* Atalhos Rápidos */}
-        <section className="space-y-4">
-          <h2 className="text-[10px] font-black text-[var(--text-secondary)] uppercase tracking-[0.2em] px-1">Atalhos Rápidos</h2>
+        <section className="space-y-3">
+          <h2 className="text-xs font-black text-[var(--text-secondary)] uppercase tracking-widest px-1">Atalhos Rápidos</h2>
           
-          <div className="space-y-3">
+          <div className="space-y-2.5">
             <button
               onClick={() => onNavigate('import_inventory')}
-              className="w-full bg-[var(--color-emerald)] text-white rounded-2xl py-4 px-4 flex items-center justify-center gap-2 shadow-lg shadow-emerald-900/10 transition-all font-black text-xs uppercase tracking-[0.15em] active:scale-98 button-gradient-success border border-emerald-400/20"
+              className="w-full bg-[var(--color-emerald)] text-white rounded-2xl py-3.5 px-4 flex items-center justify-center gap-2 shadow-lg transition-all font-black text-xs uppercase tracking-widest active:scale-98 button-gradient-success border border-emerald-400/20"
             >
-              <PlusCircle className="w-5 h-5 text-white/80" />
+              <PlusCircle className="w-5 h-5" />
               <span>Nova Auditoria</span>
             </button>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-2.5">
               <button
                 onClick={() => onNavigate('sequential_scan')}
-                className="card-elevated hover:bg-[var(--bg-secondary)]/90 text-[var(--text-primary)] p-5 flex flex-col items-start gap-3 transition-all active:scale-95"
+                className="card-elevated hover:bg-[var(--bg-secondary)]/90 text-[var(--text-primary)] p-4 flex flex-col items-start gap-2 transition-all active:scale-95"
               >
-                <div className="bg-[var(--bg-primary)] p-2.5 rounded-2xl text-[var(--color-emerald)] border border-[var(--border-color)] shadow-inner">
+                <div className="bg-[var(--bg-primary)] p-2 rounded-xl text-[var(--color-emerald)] border border-[var(--border-color)]">
                   <QrCode className="w-5 h-5" />
                 </div>
                 <div>
-                  <span className="text-xs font-black uppercase tracking-wider block">Leitura Rápida</span>
-                  <span className="text-[10px] text-[var(--text-secondary)] font-medium mt-1 block">Modo Sequencial</span>
+                  <span className="text-xs font-bold block leading-tight">Leitura Rápida</span>
+                  <span className="text-[10px] text-[var(--text-secondary)]">Modo Sequencial</span>
                 </div>
               </button>
 
               <button
-                onClick={() => onNavigate('batch_list')}
-                className="card-elevated hover:bg-[var(--bg-secondary)]/90 text-[var(--text-primary)] p-5 flex flex-col items-start gap-3 transition-all active:scale-95"
+                onClick={() => onNavigate('general_reports')}
+                className="card-elevated hover:bg-[var(--bg-secondary)]/90 text-[var(--text-primary)] p-4 flex flex-col items-start gap-2 transition-all active:scale-95"
               >
-                <div className="bg-[var(--bg-primary)] p-2.5 rounded-2xl text-[var(--color-blue)] border border-[var(--border-color)] shadow-inner">
+                <div className="bg-[var(--bg-primary)] p-2 rounded-xl text-[var(--color-blue)] border border-[var(--border-color)]">
                   <BarChart3 className="w-5 h-5" />
                 </div>
                 <div>
-                  <span className="text-xs font-black uppercase tracking-wider block">Inventário</span>
-                  <span className="text-[10px] text-[var(--text-secondary)] font-medium mt-1 block">Gerenciar Lotes</span>
+                  <span className="text-xs font-bold block leading-tight">Relatórios</span>
+                  <span className="text-[10px] text-[var(--text-secondary)]">Gerais</span>
                 </div>
               </button>
             </div>
@@ -154,18 +154,18 @@ export const MainScreen: React.FC<MainScreenProps> = ({ onNavigate, onOpenBatchD
         </section>
 
         {/* Auditorias Recentes */}
-        <section className="space-y-4 pt-2">
+        <section className="space-y-3 pt-1">
           <div className="flex justify-between items-center px-1">
-            <h2 className="text-[10px] font-black text-[var(--text-secondary)] uppercase tracking-[0.2em]">Auditorias Recentes</h2>
+            <h2 className="text-xs font-black text-[var(--text-secondary)] uppercase tracking-widest">Auditorias Recentes</h2>
             <button
               onClick={() => onNavigate('batch_list')}
-              className="text-[10px] font-black text-[var(--color-blue)] flex items-center gap-1 uppercase tracking-widest hover:underline"
+              className="text-[10px] font-bold text-[var(--color-blue)] flex items-center gap-0.5 uppercase tracking-wide hover:underline"
             >
               Ver todas <ChevronRight className="w-3 h-3" />
             </button>
           </div>
 
-          <div className="space-y-3">
+          <div className="space-y-2.5">
             {recentBatches.length > 0 ? (
               recentBatches.map((batch) => {
                 const stats = getAuditStatsForBatch(batch.id);
@@ -175,15 +175,15 @@ export const MainScreen: React.FC<MainScreenProps> = ({ onNavigate, onOpenBatchD
                   <div
                     key={batch.id}
                     onClick={() => onOpenBatchDetails && onOpenBatchDetails(batch.id)}
-                    className="card-elevated p-5 flex flex-col gap-3 shadow-sm hover:border-[var(--color-blue)]/30 transition-all cursor-pointer active:scale-[0.99]"
+                    className="card-elevated p-4 flex flex-col gap-2.5 shadow-sm hover:border-[var(--color-blue)]/40 transition-colors cursor-pointer active:scale-98"
                   >
                     <div className="flex justify-between items-start">
                       <div className="min-w-0 flex-1">
-                        <h3 className="text-sm font-black text-[var(--text-primary)] truncate uppercase tracking-tight">{batch.name}</h3>
-                        <span className="text-[10px] text-[var(--text-secondary)] font-bold font-mono-code mt-1 block opacity-80">{formatDateStr(batch.timestamp)}</span>
+                        <h3 className="text-sm font-bold text-[var(--text-primary)] truncate uppercase tracking-tight">{batch.name}</h3>
+                        <span className="text-[10px] text-[var(--text-secondary)] font-bold font-mono-code mt-0.5 block opacity-80">{formatDateStr(batch.timestamp)}</span>
                       </div>
                       <span
-                        className={`text-[8px] font-black uppercase tracking-widest px-3 py-1.5 rounded-xl border ${
+                        className={`text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full border ${
                           isComplete
                             ? 'bg-[var(--color-emerald)]/10 text-[var(--color-emerald)] border-[var(--color-emerald)]/20'
                             : 'bg-orange-500/10 text-orange-400 border-orange-500/20'
@@ -194,16 +194,16 @@ export const MainScreen: React.FC<MainScreenProps> = ({ onNavigate, onOpenBatchD
                     </div>
 
                     {batch.type === 'VERIFICATION' && (
-                      <div className="space-y-1.5 pt-1">
+                      <div className="space-y-1">
                         <div className="w-full h-1.5 bg-[var(--bg-primary)] rounded-full overflow-hidden shadow-inner">
                           <div
-                            className={`h-full ${isComplete ? 'bg-[var(--color-emerald)]' : 'bg-[var(--color-blue)]'} transition-all duration-700 rounded-full`}
+                            className={`h-full ${isComplete ? 'bg-[var(--color-emerald)]' : 'bg-[var(--color-blue)]'} transition-all duration-500 rounded-full`}
                             style={{ width: `${Math.min(100, stats.progressPercent)}%` }}
                           />
                         </div>
                         <div className="flex justify-between text-[9px] font-black text-[var(--text-secondary)] font-mono-code uppercase tracking-tighter">
-                          <span>Processamento</span>
-                          <span>{stats.progressPercent}% • {stats.foundCount}/{stats.totalExpected}</span>
+                          <span>PROCESSO</span>
+                          <span>{stats.progressPercent}% ({stats.foundCount}/{stats.totalExpected})</span>
                         </div>
                       </div>
                     )}
@@ -211,7 +211,7 @@ export const MainScreen: React.FC<MainScreenProps> = ({ onNavigate, onOpenBatchD
                 );
               })
             ) : (
-              <div className="card-elevated p-10 text-center space-y-3 opacity-60">
+              <div className="card-elevated p-8 text-center space-y-2 opacity-60">
                 <Package className="w-10 h-10 text-[var(--text-dim)] mx-auto opacity-30" />
                 <p className="text-[10px] font-black uppercase tracking-widest text-[var(--text-secondary)]">Sem registros recentes</p>
               </div>
@@ -226,7 +226,7 @@ export const MainScreen: React.FC<MainScreenProps> = ({ onNavigate, onOpenBatchD
           onClick={() => onNavigate('menu')}
           className="flex flex-col items-center justify-center text-[var(--color-blue)] px-4 py-1.5 transition-all"
         >
-          <BarChart3 className="w-5 h-5 stroke-[3]" />
+          <BarChart3 className="w-5 h-5 stroke-[2.5]" />
           <span className="text-[10px] font-black uppercase tracking-tighter mt-0.5">Home</span>
         </button>
 

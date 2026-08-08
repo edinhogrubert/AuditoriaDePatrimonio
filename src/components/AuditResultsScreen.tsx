@@ -93,7 +93,7 @@ export const AuditResultsScreen: React.FC<AuditResultsScreenProps> = ({
         </div>
         <button
             onClick={onContinueScanning}
-            className="text-[10px] font-black uppercase tracking-[0.2em] text-[#F97316] px-4 py-2 bg-orange-500/10 border border-orange-500/20 rounded-xl active:scale-95 transition-all shadow-sm"
+            className="text-[10px] font-black uppercase tracking-[0.2em] text-orange-500 px-4 py-2 bg-orange-500/10 border border-orange-500/20 rounded-xl active:scale-95 transition-all shadow-sm"
         >
             Continuar
         </button>
@@ -107,7 +107,7 @@ export const AuditResultsScreen: React.FC<AuditResultsScreenProps> = ({
             <span className="text-[10px] font-black text-[var(--color-emerald)] bg-[var(--color-emerald)]/10 px-3 py-1 rounded-xl border border-[var(--color-emerald)]/20 shadow-inner">{stats.progressPercent}%</span>
           </div>
           <div className="w-full h-2 bg-[var(--bg-secondary)] rounded-full overflow-hidden shadow-inner p-0.5 border border-[var(--border-color)]">
-             <div className="h-full bg-[var(--color-emerald)] shadow-[0_0_15px_rgba(16,185,129,0.4)] transition-all duration-700 rounded-full" style={{ width: `${stats.progressPercent}%` }} />
+             <div className="h-full bg-[var(--color-emerald)] shadow-[var(--card-shadow)] transition-all duration-700 rounded-full" style={{ width: `${stats.progressPercent}%` }} />
           </div>
         </div>
 
@@ -176,7 +176,7 @@ export const AuditResultsScreen: React.FC<AuditResultsScreenProps> = ({
       </main>
 
       <div className="fixed bottom-0 left-0 right-0 max-w-md mx-auto p-6 bg-gradient-to-t from-[var(--bg-primary)] via-[var(--bg-primary)] to-transparent z-40">
-        <button onClick={handleExportCsv} className="w-full h-16 button-gradient-primary text-white rounded-[1.25rem] font-black text-xs uppercase tracking-[0.2em] shadow-[0_20px_50px_rgba(0,0,0,0.3)] flex items-center justify-center gap-3 transition-all active:scale-[0.98] border border-blue-400/20">
+        <button onClick={handleExportCsv} className="w-full h-16 button-gradient-primary text-white rounded-[1.25rem] font-black text-xs uppercase tracking-[0.2em] shadow-[var(--card-shadow)] flex items-center justify-center gap-3 transition-all active:scale-[0.98] border border-blue-400/20">
           <Download className="w-5 h-5" />
           Exportar Relatório {filterTab !== 'all' ? `(${filterTab})` : ''}
         </button>

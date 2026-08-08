@@ -284,6 +284,10 @@ export const processScanItem = (
   const batch = batches.find((b) => b.id === batchId);
 
   const scanItems = getStoredScanItems();
+  const alreadyScanned = scanItems.some(
+    (i) => i.batchId === batchId && i.barcode.toLowerCase() === code.toLowerCase()
+  );
+
   const newScanItem: ScanItem = {
     id: Date.now() + Math.floor(Math.random() * 1000),
     batchId,
@@ -294,6 +298,13 @@ export const processScanItem = (
 
   // If simple collection batch
   if (!batch || batch.type === 'COLLECTION') {
+    if (alreadyScanned) {
+      return {
+        status: 'DUPLICATE',
+        message: 'Atenção: Este item já foi lido/coletado neste lote!',
+        item: newScanItem,
+      };
+    }
     saveScanItems([newScanItem, ...scanItems]);
     return {
       status: 'ADDED',
@@ -309,9 +320,8 @@ export const processScanItem = (
   );
 
   if (matchedExpected) {
-    if (matchedExpected.isFound) {
-      // Already found previously
-      saveScanItems([newScanItem, ...scanItems]);
+    if (matchedExpected.isFound || alreadyScanned) {
+      // Already found / scanned previously
       return {
         status: 'DUPLICATE',
         message: 'Atenção: Item já havia sido verificado anteriormente!',
@@ -336,6 +346,13 @@ export const processScanItem = (
     }
   } else {
     // Extra item / Sobra de estoque
+    if (alreadyScanned) {
+      return {
+        status: 'DUPLICATE',
+        message: 'Atenção: Esta sobra de estoque já foi lida anteriormente!',
+        item: newScanItem,
+      };
+    }
     saveScanItems([newScanItem, ...scanItems]);
     return {
       status: 'EXTRA',

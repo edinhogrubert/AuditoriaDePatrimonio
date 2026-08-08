@@ -130,7 +130,7 @@ export const ExportBatchesScreen: React.FC<ExportBatchesScreenProps> = ({
           disabled={selectedIds.length === 0}
           className={`w-full h-16 rounded-[1.25rem] font-black text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-3 transition-all active:scale-[0.98] shadow-xl ${
             selectedIds.length > 0
-              ? 'button-gradient-primary text-white shadow-blue-900/10 border border-blue-400/20'
+              ? 'button-gradient-primary text-white shadow-[var(--card-shadow)] border border-blue-400/20'
               : 'bg-[var(--bg-secondary)] text-[var(--text-dim)] cursor-not-allowed border border-[var(--border-color)] opacity-40'
           }`}
         >

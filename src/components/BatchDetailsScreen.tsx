@@ -137,14 +137,14 @@ export const BatchDetailsScreen: React.FC<BatchDetailsScreenProps> = ({
               </div>
             </div>
             <div className="card-elevated p-3.5 flex flex-col justify-between shadow-md">
-              <Clock className="w-4 h-4 text-purple-400 mb-1" />
+              <Clock className="w-4 h-4 text-[var(--color-blue)] mb-1" />
               <div>
                 <span className="text-[9px] text-[var(--text-secondary)] font-black uppercase tracking-[0.1em] block">Hora</span>
                 <span className="text-[11px] font-bold text-[var(--text-primary)] truncate leading-tight block">{formatTimeStr(batch.timestamp).slice(0, 5)}</span>
               </div>
             </div>
           </div>
-          <button onClick={onViewResults} className="w-20 button-gradient-primary text-white rounded-2xl flex flex-col items-center justify-center gap-1.5 shadow-lg shadow-blue-900/10 transition-all active:scale-95 border border-blue-400/20">
+          <button onClick={onViewResults} className="w-20 button-gradient-primary text-white rounded-2xl flex flex-col items-center justify-center gap-1.5 shadow-lg shadow-[var(--card-shadow)] transition-all active:scale-95 border border-blue-400/20">
             <BarChart3 className="w-5 h-5" />
             <span className="text-[11px] font-black uppercase tracking-widest">Ver</span>
           </button>
@@ -181,7 +181,7 @@ export const BatchDetailsScreen: React.FC<BatchDetailsScreenProps> = ({
           <div className="flex gap-2.5 h-16">
             <button
               onClick={onContinueScanning}
-              className="flex-[3.5] bg-[var(--color-emerald)] text-[var(--bg-primary)] rounded-2xl font-black text-[10px] uppercase tracking-widest flex items-center gap-3 px-5 transition-all active:scale-95 shadow-lg shadow-emerald-900/10 button-gradient-success border border-emerald-400/20"
+              className="flex-[3.5] bg-[var(--color-emerald)] text-[var(--bg-primary)] rounded-2xl font-black text-[10px] uppercase tracking-widest flex items-center gap-3 px-5 transition-all active:scale-95 shadow-lg shadow-[var(--card-shadow)] button-gradient-success border border-emerald-400/20"
             >
               <ScanLine className="w-5 h-5 shrink-0" />
               <span className="leading-tight text-left">Ler Códigos (Câmera)</span>
@@ -248,10 +248,10 @@ export const BatchDetailsScreen: React.FC<BatchDetailsScreenProps> = ({
 
       {/* Manual Input Modals */}
       {(manualMasterOpen || manualScanOpen) && (
-        <div className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-xl flex items-center justify-center p-6 animate-in fade-in duration-300">
+        <div className="fixed inset-0 z-[100] bg-[var(--bg-primary)]/90 backdrop-blur-xl flex items-center justify-center p-6 animate-in fade-in duration-300">
           <form
             onSubmit={manualMasterOpen ? handleManualMasterSubmit : handleManualScanSubmit}
-            className="bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-[2.5rem] p-9 w-full max-w-sm space-y-7 shadow-[0_30px_70px_-10px_rgba(0,0,0,0.8)] scale-105"
+            className="bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-[2.5rem] p-9 w-full max-w-sm space-y-7 shadow-[var(--card-shadow)] scale-105"
           >
             <div className="flex items-center justify-between">
                <h3 className="text-xl font-black text-[var(--text-primary)] uppercase tracking-tighter">
@@ -275,7 +275,7 @@ export const BatchDetailsScreen: React.FC<BatchDetailsScreenProps> = ({
             <button
               type="submit"
               disabled={!manualCode.trim()}
-              className={`w-full py-4 rounded-2xl font-black text-sm uppercase tracking-[0.2em] transition-all shadow-xl active:scale-95 disabled:opacity-20 ${manualMasterOpen ? 'bg-[var(--color-blue)] text-white shadow-blue-900/20' : 'bg-[var(--color-emerald)] text-[var(--bg-primary)] shadow-emerald-900/20'}`}
+              className={`w-full py-4 rounded-2xl font-black text-sm uppercase tracking-[0.2em] transition-all shadow-xl active:scale-95 disabled:opacity-20 ${manualMasterOpen ? 'bg-[var(--color-blue)] text-white shadow-[var(--card-shadow)]' : 'bg-[var(--color-emerald)] text-[var(--bg-primary)] shadow-[var(--card-shadow)]'}`}
             >
               {manualMasterOpen ? 'Cadastrar Item' : 'Confirmar Presença'}
             </button>

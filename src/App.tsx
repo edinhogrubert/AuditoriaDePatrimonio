@@ -16,6 +16,7 @@ import { MainScreen } from './components/MainScreen';
 import { ScanScreen } from './components/ScanScreen';
 import { SequentialScanScreen } from './components/SequentialScanScreen';
 import { BatchListScreen } from './components/BatchListScreen';
+import { AssetsListScreen } from './components/AssetsListScreen';
 import { NewBatchScreen } from './components/NewBatchScreen';
 import { ImportInventoryScreen } from './components/ImportInventoryScreen';
 import { BatchScanScreen } from './components/BatchScanScreen';
@@ -24,6 +25,7 @@ import { BatchDetailsScreen } from './components/BatchDetailsScreen';
 import { AuditResultsScreen } from './components/AuditResultsScreen';
 import { ExportBatchesScreen } from './components/ExportBatchesScreen';
 import { SettingsScreen } from './components/SettingsScreen';
+import { GeneralReportsScreen } from './components/GeneralReportsScreen';
 
 import { QrImportScannerScreen } from './components/QrImportScannerScreen';
 
@@ -32,6 +34,7 @@ export function App() {
   const [activeBatchId, setActiveBatchId] = useState<number | null>(null);
   const [qrImportBatchName, setQrImportBatchName] = useState<string>('Conferência QR');
   const [targetBatchId, setTargetBatchId] = useState<number | null>(null);
+  const [batchListFilter, setBatchListFilter] = useState<'ALL' | 'COLLECTION' | 'VERIFICATION' | 'PENDING' | 'COMPLETED'>('ALL');
 
   const [batches, setBatches] = useState<Batch[]>([]);
   const [scanItems, setScanItems] = useState<ScanItem[]>([]);
@@ -130,7 +133,14 @@ export function App() {
     <div className={`min-h-screen font-['Inter',sans-serif] transition-colors ${currentScreen === 'sequential_scan' || currentScreen === 'scan' || currentScreen === 'verification_scan' || (currentScreen === 'qr_import' && !activeBatchId) ? 'bg-transparent' : 'bg-[var(--bg-gradient)]'}`}>
       {currentScreen === 'menu' && (
         <MainScreen
-          onNavigate={(screen) => setCurrentScreen(screen as Screen)}
+          onNavigate={(screen, filter) => {
+             if (filter) {
+               setBatchListFilter(filter as any);
+             } else {
+               setBatchListFilter('ALL');
+             }
+             setCurrentScreen(screen as Screen);
+          }}
           onOpenBatchDetails={(batchId) => {
             setActiveBatchId(batchId);
             setCurrentScreen('batch_details');
@@ -149,6 +159,7 @@ export function App() {
       {currentScreen === 'batch_list' && (
         <BatchListScreen
           batches={batches}
+          initialFilter={batchListFilter}
           onBack={() => setCurrentScreen('menu')}
           onNewBatchClick={() => setCurrentScreen('new_batch')}
           onImportInventoryClick={() => {
@@ -158,6 +169,28 @@ export function App() {
           onBatchClick={handleOpenBatch}
           onDeleteBatch={handleDeleteBatch}
           onExportClick={() => setCurrentScreen('export_batches')}
+        />
+      )}
+
+      {currentScreen === 'general_reports' && (
+        <GeneralReportsScreen
+          batches={batches}
+          onBack={() => setCurrentScreen('menu')}
+          onOpenBatchDetails={(batchId) => {
+            setActiveBatchId(batchId);
+            setCurrentScreen('batch_details');
+          }}
+          onNavigateBatchList={() => setCurrentScreen('batch_list')}
+        />
+      )}
+
+      {currentScreen === 'assets_list' && (
+        <AssetsListScreen
+          onBack={() => setCurrentScreen('menu')}
+          onOpenBatchDetails={(batchId) => {
+            setActiveBatchId(batchId);
+            setCurrentScreen('batch_details');
+          }}
         />
       )}
 

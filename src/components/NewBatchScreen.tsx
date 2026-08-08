@@ -96,7 +96,7 @@ export const NewBatchScreen: React.FC<NewBatchScreenProps> = ({
           disabled={!batchName.trim()}
           className={`w-full h-16 rounded-[1.25rem] font-black text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-3 transition-all active:scale-[0.98] shadow-xl ${
             batchName.trim()
-              ? 'button-gradient-success text-[var(--bg-primary)] shadow-emerald-900/10'
+              ? 'button-gradient-success text-[var(--bg-primary)] shadow-[var(--card-shadow)]'
               : 'bg-[var(--bg-secondary)] text-[var(--text-dim)] cursor-not-allowed border border-[var(--border-color)]'
           }`}
         >
