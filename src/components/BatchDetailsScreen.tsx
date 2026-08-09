@@ -15,11 +15,14 @@ import {
   X,
   CheckCircle2,
   RotateCcw,
+  RefreshCw,
   Check,
   ChevronRight,
   Search,
   AlertTriangle,
+  FileJson,
 } from 'lucide-react';
+import { QrCodeExportModal } from './QrCodeExportModal';
 import { Batch, ScanItem, ExpectedItem } from '../types';
 import {
   formatDateStr,
@@ -33,6 +36,7 @@ import {
   closeBatch,
   reopenBatch,
   getAuditStatsForBatch,
+  reconcileBatchAudit,
   getStoredSettings,
   saveSettings,
   consumeDeletePermissionOnce,
@@ -97,12 +101,12 @@ export const BatchDetailsScreen: React.FC<BatchDetailsScreenProps> = ({
 
   const [itemFilter, setItemFilter] = useState<'ALL' | 'FOUND' | 'MISSING' | 'EXTRA'>('ALL');
   const [recordSearch, setRecordSearch] = useState('');
-  const [reconcileNotice, setReconcileNotice] = useState<string | null>(null);
+  const [reconciledNotice, setReconciledNotice] = useState<string | null>(null);
 
   const handleReconcile = () => {
     const updatedStats = reconcileBatchAudit(batch.id);
-    setReconcileNotice(`Lógica sincronizada: ${updatedStats.foundCount} OK, ${updatedStats.missingCount} Falta, ${updatedStats.extraCount} Extra.`);
-    setTimeout(() => setReconcileNotice(null), 4500);
+    setReconciledNotice(`Lógica de auditoria sincronizada: ${updatedStats.foundCount} OK, ${updatedStats.missingCount} Ausentes, ${updatedStats.extraCount} Extras.`);
+    setTimeout(() => setReconciledNotice(null), 4500);
     onRefresh();
   };
 
@@ -186,9 +190,37 @@ export const BatchDetailsScreen: React.FC<BatchDetailsScreenProps> = ({
     return items;
   }, [batch.type, expectedItems, scanItems, extraScans, itemFilter, recordSearch]);
 
-  const handleExport = () => {
+  const [exportMenuOpen, setExportMenuOpen] = useState(false);
+  const [qrModalOpen, setQrModalOpen] = useState(false);
+
+  const handleExportCsv = () => {
     exportSingleBatchToCsv(batch, scanItems);
+    setExportMenuOpen(false);
   };
+
+  const handleExportJson = () => {
+    const payload = {
+      batch,
+      scans: scanItems,
+      expected: expectedItems,
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `lote_${batch.name.toLowerCase().replace(/[^a-z0-9]/gi, '_')}_${Date.now()}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    setExportMenuOpen(false);
+  };
+
+  const batchQrPayload = useMemo(() => {
+    return {
+      batch,
+      scans: scanItems,
+      expected: expectedItems,
+    };
+  }, [batch, scanItems, expectedItems]);
 
   const handleClearMaster = () => {
     if (confirm('ATENÇÃO: Deseja apagar TODOS os itens da lista mestre (o que deve ser procurado)?')) {
@@ -303,9 +335,9 @@ export const BatchDetailsScreen: React.FC<BatchDetailsScreenProps> = ({
             </button>
           )}
           <button
-            onClick={handleExport}
+            onClick={() => setExportMenuOpen(true)}
             className="p-2.5 rounded-full bg-[var(--color-emerald)]/10 text-[var(--color-emerald)] border border-[var(--color-emerald)]/20 hover:bg-[var(--color-emerald)]/20 active:scale-95 transition-all shadow-sm"
-            title="Exportar"
+            title="Opções de Exportação / Compartilhamento"
           >
             <Share2 className="w-5 h-5" />
           </button>
@@ -313,11 +345,6 @@ export const BatchDetailsScreen: React.FC<BatchDetailsScreenProps> = ({
       </div>
 
       <div className="py-4 space-y-4 flex-1 overflow-hidden flex flex-col">
-        {/* File Identification Badge */}
-        <div className="px-1">
-          <span className="text-[10px] font-mono font-bold bg-[var(--bg-secondary)] text-[var(--color-blue)] px-2.5 py-1 rounded-md border border-[var(--border-color)] shadow-xs inline-block">BatchDetailsScreen.tsx</span>
-        </div>
-
         {/* Closed Banner if already concluded */}
         {batch.isClosed && (
           <div className="bg-emerald-500/10 border border-emerald-500/30 p-4 rounded-2xl flex items-center justify-between gap-3 shrink-0 shadow-sm animate-in fade-in">
@@ -437,11 +464,11 @@ export const BatchDetailsScreen: React.FC<BatchDetailsScreenProps> = ({
 
         {/* Secondary Actions */}
         <div className="flex gap-2.5 pt-1 shrink-0">
-          <button onClick={handleExport} className="flex-1 h-12 bg-[#0284c7] hover:bg-[#0369a1] text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 rounded-2xl transition-all active:scale-95 shadow-md">
+          <button onClick={() => setExportMenuOpen(true)} className="flex-1 h-12 bg-[#0284c7] hover:bg-[#0369a1] text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 rounded-2xl transition-all active:scale-95 shadow-md">
             <Download className="w-4 h-4 text-sky-200" />
-            Relatório CSV
+            Exportar Lote
           </button>
-
+          
           {batch.type === 'VERIFICATION' && !batch.isClosed ? (
             <button
               onClick={() => setCloseModalOpen(true)}
@@ -465,101 +492,214 @@ export const BatchDetailsScreen: React.FC<BatchDetailsScreenProps> = ({
           )}
         </div>
 
-        {/* Visual Audit Summary Card (Enterprise Refinement) */}
-        <div className="card-elevated p-4 rounded-2xl border border-[var(--border-color)] shadow-xs space-y-4 shrink-0">
-          {/* Header row matching screenshot exactly */}
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex items-center gap-2">
-              <BarChart3 className="w-4 h-4 text-sky-500 shrink-0" />
-              <h2 className="text-[10px] font-black uppercase tracking-tight text-[var(--text-primary)] leading-tight">
-                Resumo da<br/>Auditoria
-              </h2>
-            </div>
-
-            {batch.type === 'VERIFICATION' && (
+        {/* Visual Audit Summary & Metric Distribution Section (Replacing Item Rows) */}
+        <div className="card-elevated p-4 rounded-2xl border border-[var(--border-color)] shadow-xs space-y-4 flex-1 overflow-y-auto custom-scrollbar flex flex-col justify-between">
+          <div className="space-y-4">
+            {/* Top Card Header & Accuracy Badge & Reconcile Button */}
+            <div className="flex items-center justify-between gap-2 border-b border-[var(--border-color)] pb-3">
               <div className="flex items-center gap-2">
-                {/* Accuracy Pill */}
-                <span className="text-[9px] font-black uppercase text-sky-400 bg-sky-400/10 px-2 py-1.5 rounded-full border border-sky-400/20 shadow-inner whitespace-nowrap">
-                  {stats.progressPercent}% Acurácia
-                </span>
+                <BarChart3 className="w-4 h-4 text-sky-500 shrink-0" />
+                <h2 className="text-xs font-black uppercase tracking-tight text-[var(--text-primary)]">
+                  Resumo da Auditoria
+                </h2>
+                {stats.totalExpected > 0 && (
+                  <span className="text-[10px] font-extrabold text-sky-600 dark:text-sky-400 bg-sky-500/10 px-2 py-0.5 rounded-full border border-sky-500/20">
+                    {stats.progressPercent}% Acurácia
+                  </span>
+                )}
+              </div>
 
-                {/* Recalcular Lógica Button (Blue style) */}
+              <div className="flex items-center gap-1.5">
                 <button
                   onClick={handleReconcile}
-                  className="px-3 py-2 bg-[#002b59] hover:bg-[#0f3d73] text-white rounded-xl text-[9px] font-black uppercase tracking-tighter transition-all active:scale-95 shadow-sm flex items-center gap-2 leading-none"
-                  title="Recalcular Lógica de Auditoria"
+                  className="px-2.5 py-1 bg-[#002b59] hover:bg-[#0f3d73] text-white rounded-xl text-[10px] font-black uppercase tracking-wider transition-all active:scale-95 shadow-xs flex items-center gap-1"
+                  title="Refazer a leitura e conciliação da lógica do negócio"
                 >
-                  <RotateCcw className="w-3.5 h-3.5 text-sky-300" />
-                  <div className="flex flex-col items-center">
-                    <span>Recalcular</span>
-                    <span>Lógica</span>
-                  </div>
+                  <RefreshCw className="w-3 h-3 text-sky-300" />
+                  <span>Recalcular Lógica</span>
                 </button>
-
-                {/* Relatório Link */}
                 <button
                   onClick={onViewResults}
-                  className="flex items-center gap-0.5 text-[10px] font-black text-sky-400 uppercase tracking-wider hover:underline group ml-1"
+                  className="flex items-center gap-0.5 text-[11px] font-black text-sky-600 dark:text-sky-400 uppercase tracking-wider hover:underline"
                 >
                   <span>Relatório</span>
-                  <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+                  <ChevronRight className="w-4 h-4" />
                 </button>
               </div>
+            </div>
+
+            {reconciledNotice && (
+              <div className="bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold p-2.5 rounded-xl text-center animate-in fade-in">
+                {reconciledNotice}
+              </div>
             )}
+
+            {/* Top Overall Progress Bar (Ok / Falta / Extra Segmented Bar) */}
+            {stats.totalExpected > 0 && (
+              <div className="space-y-1.5">
+                <div className="w-full bg-[var(--bg-primary)] h-3 rounded-full overflow-hidden flex border border-[var(--border-color)] p-0.5">
+                  {stats.foundCount > 0 && (
+                    <div
+                      style={{ width: `${(stats.foundCount / Math.max(1, stats.totalExpected + stats.extraCount)) * 100}%` }}
+                      className="bg-emerald-500 h-full rounded-l-full transition-all duration-500"
+                      title={`Ok: ${stats.foundCount}`}
+                    />
+                  )}
+                  {stats.missingCount > 0 && (
+                    <div
+                      style={{ width: `${(stats.missingCount / Math.max(1, stats.totalExpected + stats.extraCount)) * 100}%` }}
+                      className="bg-red-500 h-full transition-all duration-500"
+                      title={`Falta: ${stats.missingCount}`}
+                    />
+                  )}
+                  {stats.extraCount > 0 && (
+                    <div
+                      style={{ width: `${(stats.extraCount / Math.max(1, stats.totalExpected + stats.extraCount)) * 100}%` }}
+                      className="bg-amber-500 h-full rounded-r-full transition-all duration-500"
+                      title={`Extra: ${stats.extraCount}`}
+                    />
+                  )}
+                </div>
+                <div className="flex justify-between items-center text-[10px] text-[var(--text-dim)] font-extrabold px-1">
+                  <span className="text-emerald-600 dark:text-emerald-400">🟢 {stats.foundCount} Ok</span>
+                  <span className="text-red-500">🔴 {stats.missingCount} Falta</span>
+                  <span className="text-amber-500">🟠 {stats.extraCount} Extra</span>
+                </div>
+              </div>
+            )}
+
+            {/* 4 Stacked Rows Layout Matching Mockup Diagram */}
+            <div className="space-y-3 pt-1">
+              {/* Row 1: TODOS */}
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={onViewResults}
+                  className="w-20 h-14 bg-[#002b59] hover:bg-[#0f3d73] text-white border border-sky-500/30 rounded-xl flex flex-col items-center justify-center shrink-0 transition-all active:scale-95 shadow-sm"
+                >
+                  <span className="text-[9px] font-black uppercase text-sky-300 tracking-wider">Todos</span>
+                  <span className="text-base font-black mt-0.5 leading-none">
+                    {stats.totalExpected > 0 ? stats.totalExpected : scanItems.length}
+                  </span>
+                </button>
+                <div className="flex-1 space-y-1.5">
+                  <div className="w-full bg-[var(--bg-primary)] h-4 rounded-lg overflow-hidden border border-[var(--border-color)] p-0.5 relative flex items-center">
+                    <div className="bg-sky-500 h-full w-full rounded-md transition-all duration-500" />
+                  </div>
+                  <div className="flex justify-between items-center text-[10px] font-bold text-[var(--text-secondary)] px-0.5">
+                    <span>{stats.totalExpected > 0 ? 'Ativos Esperados na Mestre' : 'Total de Leituras Coletadas'}</span>
+                    <span className="font-mono-code text-[var(--text-primary)]">
+                      {stats.totalExpected > 0 ? stats.totalExpected : scanItems.length}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Row 2: OK */}
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={onViewResults}
+                  className="w-20 h-14 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 rounded-xl flex flex-col items-center justify-center shrink-0 transition-all active:scale-95 shadow-sm"
+                >
+                  <span className="text-[9px] font-black uppercase tracking-wider">OK</span>
+                  <span className="text-base font-black mt-0.5 leading-none">
+                    {stats.foundCount}
+                  </span>
+                </button>
+                <div className="flex-1 space-y-1.5">
+                  <div className="w-full bg-[var(--bg-primary)] h-4 rounded-lg overflow-hidden border border-[var(--border-color)] p-0.5 relative flex items-center">
+                    <div
+                      className="bg-emerald-500 h-full rounded-md transition-all duration-500"
+                      style={{
+                        width: `${
+                          stats.totalExpected > 0
+                            ? Math.min(100, (stats.foundCount / Math.max(1, stats.totalExpected)) * 100)
+                            : 0
+                        }%`,
+                      }}
+                    />
+                  </div>
+                  <div className="flex justify-between items-center text-[10px] font-bold text-emerald-600 dark:text-emerald-400 px-0.5">
+                    <span>🟢 {stats.foundCount} Localizados</span>
+                    <span className="font-mono-code">
+                      {stats.totalExpected > 0
+                        ? `${Math.round((stats.foundCount / Math.max(1, stats.totalExpected)) * 100)}%`
+                        : '0%'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Row 3: FALTA */}
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={onViewResults}
+                  className="w-20 h-14 bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400 border border-red-500/30 rounded-xl flex flex-col items-center justify-center shrink-0 transition-all active:scale-95 shadow-sm"
+                >
+                  <span className="text-[9px] font-black uppercase tracking-wider">Falta</span>
+                  <span className="text-base font-black mt-0.5 leading-none">
+                    {stats.missingCount}
+                  </span>
+                </button>
+                <div className="flex-1 space-y-1.5">
+                  <div className="w-full bg-[var(--bg-primary)] h-4 rounded-lg overflow-hidden border border-[var(--border-color)] p-0.5 relative flex items-center">
+                    <div
+                      className="bg-red-500 h-full rounded-md transition-all duration-500"
+                      style={{
+                        width: `${
+                          stats.totalExpected > 0
+                            ? Math.min(100, (stats.missingCount / Math.max(1, stats.totalExpected)) * 100)
+                            : 0
+                        }%`,
+                      }}
+                    />
+                  </div>
+                  <div className="flex justify-between items-center text-[10px] font-bold text-red-600 dark:text-red-400 px-0.5">
+                    <span>🔴 {stats.missingCount} Ausentes</span>
+                    <span className="font-mono-code">
+                      {stats.totalExpected > 0
+                        ? `${Math.round((stats.missingCount / Math.max(1, stats.totalExpected)) * 100)}%`
+                        : '0%'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Row 4: EXTRA */}
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={onViewResults}
+                  className="w-20 h-14 bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-500/30 rounded-xl flex flex-col items-center justify-center shrink-0 transition-all active:scale-95 shadow-sm"
+                >
+                  <span className="text-[9px] font-black uppercase tracking-wider">Extra</span>
+                  <span className="text-base font-black mt-0.5 leading-none">
+                    {stats.totalExpected > 0 ? stats.extraCount : scanItems.length}
+                  </span>
+                </button>
+                <div className="flex-1 space-y-1.5">
+                  <div className="w-full bg-[var(--bg-primary)] h-4 rounded-lg overflow-hidden border border-[var(--border-color)] p-0.5 relative flex items-center">
+                    <div
+                      className="bg-amber-500 h-full rounded-md transition-all duration-500"
+                      style={{
+                        width: `${
+                          stats.totalExpected > 0
+                            ? Math.min(100, (stats.extraCount / Math.max(1, stats.totalExpected)) * 100)
+                            : (scanItems.length > 0 ? 100 : 0)
+                        }%`,
+                      }}
+                    />
+                  </div>
+                  <div className="flex justify-between items-center text-[10px] font-bold text-amber-600 dark:text-amber-400 px-0.5">
+                    <span>🟠 {stats.totalExpected > 0 ? stats.extraCount : scanItems.length} Sobras Encontradas</span>
+                    <span className="font-mono-code">
+                      {stats.totalExpected > 0
+                        ? `${Math.round((stats.extraCount / stats.totalExpected) * 100)}%`
+                        : (scanItems.length > 0 ? '100%' : '0%')}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-
-          {reconcileNotice && (
-            <div className="bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold p-2 rounded-xl text-center animate-in fade-in">
-              {reconcileNotice}
-            </div>
-          )}
-
-          <div className="w-full h-px bg-[var(--border-color)] opacity-40" />
-
-          {/* Single Segmented Progress Bar */}
-          {batch.type === 'VERIFICATION' && (
-            <div className="space-y-4">
-              <div className="w-full bg-[var(--bg-primary)] h-3 rounded-full overflow-hidden flex border border-[var(--border-color)] p-0.5">
-                {stats.foundCount > 0 && (
-                  <div
-                    style={{ width: `${(stats.foundCount / Math.max(1, stats.totalExpected + stats.extraCount)) * 100}%` }}
-                    className="bg-emerald-500 h-full rounded-l-full transition-all duration-700"
-                  />
-                )}
-                {stats.missingCount > 0 && (
-                  <div
-                    style={{ width: `${(stats.missingCount / Math.max(1, stats.totalExpected + stats.extraCount)) * 100}%` }}
-                    className="bg-red-500 h-full transition-all duration-700"
-                  />
-                )}
-                {stats.extraCount > 0 && (
-                  <div
-                    style={{ width: `${(stats.extraCount / Math.max(1, stats.totalExpected + stats.extraCount)) * 100}%` }}
-                    className="bg-amber-500 h-full rounded-r-full transition-all duration-700"
-                  />
-                )}
-              </div>
-
-              {/* Professional Legend with Circles (Matching screenshot) */}
-              <div className="flex justify-between items-center px-1">
-                <div className="flex items-center gap-1.5">
-                  <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_5px_rgba(16,185,129,0.5)]" />
-                  <span className="text-[11px] font-black text-[var(--text-primary)]">{stats.foundCount} Ok</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <div className="w-2.5 h-2.5 rounded-full bg-red-500 shadow-[0_0_5px_rgba(239,68,68,0.5)]" />
-                  <span className="text-[11px] font-black text-[var(--text-primary)]">{stats.missingCount} Falta</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <div className="w-2.5 h-2.5 rounded-full bg-amber-500 shadow-[0_0_5px_rgba(245,158,11,0.5)]" />
-                  <span className="text-[11px] font-black text-[var(--text-primary)]">{stats.extraCount} Extra</span>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-
-        <div className="flex-1" /> {/* Spacer */}
 
           {/* Bottom Card ("Alguma outra coisa nesse espaço" -> Executive Diagnostic Card) */}
           <div className="bg-[var(--bg-primary)] border border-[var(--border-color)] p-3.5 rounded-xl space-y-2.5 mt-2 shadow-2xs">
@@ -597,11 +737,11 @@ export const BatchDetailsScreen: React.FC<BatchDetailsScreenProps> = ({
                 <span>Ver Dossiê e Itens</span>
               </button>
               <button
-                onClick={handleExport}
+                onClick={() => setExportMenuOpen(true)}
                 className="py-2 px-3 bg-[var(--bg-secondary)] hover:bg-[var(--bg-primary)] text-[var(--text-primary)] border border-[var(--border-color)] text-[10px] font-extrabold uppercase tracking-wider rounded-xl transition-all active:scale-95 shadow-xs flex items-center gap-1"
               >
                 <Download className="w-3.5 h-3.5 text-sky-500" />
-                <span>Exportar CSV</span>
+                <span>Exportar</span>
               </button>
             </div>
           </div>
@@ -750,6 +890,103 @@ export const BatchDetailsScreen: React.FC<BatchDetailsScreenProps> = ({
         onConfirmDeleteOnce={handleConfirmDeleteOnce}
         onConfirmDeleteAlways={handleConfirmDeleteAlways}
       />
+
+      {/* Export Format Selector Modal */}
+      {exportMenuOpen && (
+        <div className="fixed inset-0 z-[150] bg-black/80 backdrop-blur-md flex items-end sm:items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-[2.5rem] p-6 w-full max-w-sm space-y-5 shadow-2xl relative">
+            <div className="flex items-center justify-between border-b border-[var(--border-color)] pb-3">
+              <div className="flex items-center gap-2.5">
+                <div className="p-2 rounded-xl bg-[var(--color-emerald)]/10 text-[var(--color-emerald)] border border-[var(--color-emerald)]/20">
+                  <Share2 className="w-5 h-5" />
+                </div>
+                <div>
+                  <h2 className="text-sm font-black uppercase tracking-tight text-[var(--text-primary)]">
+                    Exportar Lote
+                  </h2>
+                  <p className="text-[10px] text-[var(--text-dim)] font-medium truncate max-w-[180px]">
+                    {batch.name}
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setExportMenuOpen(false)}
+                className="p-1.5 text-[var(--text-dim)] hover:text-[var(--text-primary)] transition-colors rounded-full"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-2.5">
+              <button
+                onClick={handleExportCsv}
+                className="w-full card-elevated p-4 rounded-2xl border border-[var(--border-color)] hover:border-[var(--color-emerald)] flex items-center gap-3.5 text-left transition-all active:scale-[0.98] shadow-sm group"
+              >
+                <div className="p-3 rounded-xl bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 group-hover:scale-110 transition-transform">
+                  <Download className="w-5 h-5" />
+                </div>
+                <div>
+                  <span className="text-xs font-black uppercase tracking-tight text-[var(--text-primary)] block">
+                    Planilha CSV (Excel / Sheets)
+                  </span>
+                  <span className="text-[9px] text-[var(--text-secondary)] font-medium">
+                    Download em tabela organizada por colunas
+                  </span>
+                </div>
+              </button>
+
+              <button
+                onClick={handleExportJson}
+                className="w-full card-elevated p-4 rounded-2xl border border-[var(--border-color)] hover:border-[var(--color-blue)] flex items-center gap-3.5 text-left transition-all active:scale-[0.98] shadow-sm group"
+              >
+                <div className="p-3 rounded-xl bg-sky-500/10 text-sky-500 border border-sky-500/20 group-hover:scale-110 transition-transform">
+                  <FileJson className="w-5 h-5" />
+                </div>
+                <div>
+                  <span className="text-xs font-black uppercase tracking-tight text-[var(--text-primary)] block">
+                    Arquivo JSON Estruturado
+                  </span>
+                  <span className="text-[9px] text-[var(--text-secondary)] font-medium">
+                    Contém lote, mestre e todas as leituras
+                  </span>
+                </div>
+              </button>
+
+              <button
+                onClick={() => {
+                  setExportMenuOpen(false);
+                  setQrModalOpen(true);
+                }}
+                className="w-full card-elevated p-4 rounded-2xl border border-[var(--border-color)] hover:border-amber-500 flex items-center gap-3.5 text-left transition-all active:scale-[0.98] shadow-sm group"
+              >
+                <div className="p-3 rounded-xl bg-amber-500/10 text-amber-500 border border-amber-500/20 group-hover:scale-110 transition-transform">
+                  <QrCode className="w-5 h-5" />
+                </div>
+                <div>
+                  <span className="text-xs font-black uppercase tracking-tight text-[var(--text-primary)] block">
+                    Gerar QR Code Mestre
+                  </span>
+                  <span className="text-[9px] text-[var(--text-secondary)] font-medium">
+                    Transferência direta de celular para celular
+                  </span>
+                </div>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* QR Code Modal for Single Batch Transfer */}
+      {qrModalOpen && (
+        <QrCodeExportModal
+          isOpen={qrModalOpen}
+          onClose={() => setQrModalOpen(false)}
+          title={`Lote: ${batch.name}`}
+          subtitle={`${totalCount} itens cadastrados`}
+          payload={batchQrPayload}
+        />
+      )}
     </div>
   );
 };
+

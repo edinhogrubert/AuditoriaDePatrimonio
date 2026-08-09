@@ -236,7 +236,22 @@ export const processScanItem = (
   barcode: string,
   format: string
 ): VerificationScanResult => {
-  const code = barcode.trim();
+  const rawCode = barcode.trim();
+
+  // Logic to split multiple codes in a single scan (Bulk Scan support)
+  const codes = rawCode.split(/[\s,;\n]+/).filter(c => c.trim().length > 0);
+
+  if (codes.length > 1) {
+      // Process each code recursively
+      codes.forEach(c => processScanItem(batchId, c, format));
+      return {
+          status: 'ADDED',
+          message: `Sucesso: ${codes.length} códigos processados em lote.`,
+          item: { id: 0, batchId, barcode: rawCode, format, timestamp: Date.now() }
+      };
+  }
+
+  const code = codes[0] || rawCode;
   const batches = getStoredBatches();
   const batch = batches.find((b) => b.id === batchId);
 

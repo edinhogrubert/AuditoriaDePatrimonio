@@ -22,6 +22,8 @@ import {
 } from 'lucide-react';
 import { AppSettings, DeletePermission } from '../types';
 import { saveSettings } from '../services/storage';
+import { generateFullBackup, BackupData } from '../utils/qrChunker';
+import { BackupModal } from './BackupModal';
 
 interface SettingsScreenProps {
   settings: AppSettings;
@@ -40,6 +42,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
 }) => {
   const [current, setCurrent] = useState<AppSettings>(settings);
   const [savedNotice, setSavedNotice] = useState(false);
+  const [pendingBackupData, setPendingBackupData] = useState<BackupData | null>(null);
 
   const toggle = (key: keyof AppSettings) => {
     const updated = { ...current, [key]: !current[key] };
@@ -58,20 +61,15 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
   };
 
   const handleBackupExport = () => {
-    const backup = {
-      batches: localStorage.getItem('inventario_batches_v2'),
-      items: localStorage.getItem('inventario_scan_items_v2'),
-      expected: localStorage.getItem('inventario_expected_items_v2'),
-      settings: localStorage.getItem('inventario_settings_v2'),
-      exportedAt: new Date().toISOString(),
-    };
+    const backup = generateFullBackup();
     const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const link = document.body.appendChild(document.createElement('a'));
     link.href = url;
-    link.download = `backup_ia_${Date.now()}.json`;
+    link.download = `backup_inventario_${new Date().toISOString().split('T')[0]}.json`;
     link.click();
     document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
   const handleBackupImport = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -80,14 +78,39 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
     const reader = new FileReader();
     reader.onload = (evt) => {
       try {
-        const data = JSON.parse(evt.target?.result as string);
-        if (data.batches) localStorage.setItem('inventario_batches_v2', data.batches);
-        if (data.items) localStorage.setItem('inventario_scan_items_v2', data.items);
-        if (data.expected) localStorage.setItem('inventario_expected_items_v2', data.expected);
-        if (data.settings) localStorage.setItem('inventario_settings_v2', data.settings);
-        alert('Dados restaurados!');
-        window.location.reload();
-      } catch (err) { alert('Erro no arquivo.'); }
+        const rawJson = evt.target?.result as string;
+        const parsed = JSON.parse(rawJson);
+
+        // Standardize backup format
+        let normalized: BackupData;
+        if (parsed.batches && typeof parsed.batches === 'string') {
+          normalized = {
+            batches: JSON.parse(parsed.batches || '[]'),
+            items: JSON.parse(parsed.items || '[]'),
+            expected: JSON.parse(parsed.expected || '[]'),
+            logs: JSON.parse(parsed.logs || '[]'),
+            settings: parsed.settings ? JSON.parse(parsed.settings) : undefined,
+            exportedAt: parsed.exportedAt || new Date().toISOString(),
+            version: '2.1',
+          };
+        } else {
+          normalized = {
+            batches: Array.isArray(parsed.batches) ? parsed.batches : [],
+            items: Array.isArray(parsed.items) ? parsed.items : [],
+            expected: Array.isArray(parsed.expected) ? parsed.expected : [],
+            logs: Array.isArray(parsed.logs) ? parsed.logs : [],
+            settings: parsed.settings,
+            exportedAt: parsed.exportedAt || new Date().toISOString(),
+            version: '2.1',
+          };
+        }
+
+        setPendingBackupData(normalized);
+      } catch (err) {
+        alert('Formato de arquivo inválido. Certifique-se de selecionar um backup .JSON do sistema.');
+      } finally {
+        if (e.target) e.target.value = '';
+      }
     };
     reader.readAsText(file);
   };
@@ -118,8 +141,8 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                 <div><h3 className="text-sm font-black uppercase tracking-tight">Tema Visual</h3><p className="text-[10px] text-[var(--text-dim)] font-medium mt-1">Alternar modo claro e escuro</p></div>
              </div>
              <div className="grid grid-cols-2 gap-3 p-1.5 bg-[var(--bg-primary)] rounded-[1.25rem] border border-[var(--border-color)] shadow-inner">
-                <button onClick={() => updateSetting('theme', 'light')} className={`flex items-center justify-center gap-2 py-3 rounded-xl transition-all ${current.theme === 'light' ? 'bg-[var(--btn-primary-bg)] text-white shadow-xs font-bold' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] font-semibold'}`}><Sun className={`w-4 h-4 ${current.theme === 'light' ? 'fill-current' : ''}`} /><span className="text-xs uppercase tracking-wider">Claro</span></button>
-                <button onClick={() => updateSetting('theme', 'dark')} className={`flex items-center justify-center gap-2 py-3 rounded-xl transition-all ${current.theme === 'dark' ? 'bg-[var(--btn-primary-bg)] text-white shadow-xs font-bold' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] font-semibold'}`}><Moon className={`w-4 h-4 ${current.theme === 'dark' ? 'fill-current' : ''}`} /><span className="text-xs uppercase tracking-wider">Escuro</span></button>
+                <button onClick={() => updateSetting('theme', 'light')} className={`flex items-center justify-center gap-2 py-3 rounded-xl transition-all ${current.theme === 'light' ? 'bg-[#002b59] dark:bg-sky-600 text-white shadow-xs font-bold' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] font-semibold'}`}><Sun className={`w-4 h-4 ${current.theme === 'light' ? 'fill-current' : ''}`} /><span className="text-xs uppercase tracking-wider">Claro</span></button>
+                <button onClick={() => updateSetting('theme', 'dark')} className={`flex items-center justify-center gap-2 py-3 rounded-xl transition-all ${current.theme === 'dark' ? 'bg-[#002b59] dark:bg-sky-600 text-white shadow-xs font-bold' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] font-semibold'}`}><Moon className={`w-4 h-4 ${current.theme === 'dark' ? 'fill-current' : ''}`} /><span className="text-xs uppercase tracking-wider">Escuro</span></button>
              </div>
           </div>
         </div>
@@ -232,6 +255,15 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
           <p className="text-[8px] font-black uppercase tracking-[0.4em]">Inventário Profissional</p>
           <p className="text-[7px] font-bold uppercase mt-1 tracking-widest">v2.1 Build Quail</p>
       </div>
+
+      {pendingBackupData && (
+        <BackupModal
+          isOpen={!!pendingBackupData}
+          onClose={() => setPendingBackupData(null)}
+          backupData={pendingBackupData}
+          onSuccess={(msg) => alert(msg)}
+        />
+      )}
     </div>
   );
 };

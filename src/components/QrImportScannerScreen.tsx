@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ArrowLeft, Tag, RefreshCw, Check, Upload, Image as ImageIcon, QrCode, Sparkles, Loader2 } from 'lucide-react';
+import { ArrowLeft, Tag, RefreshCw, Check, Upload, Image as ImageIcon, QrCode, Sparkles, Loader2, Layers } from 'lucide-react';
 import { CameraScanner } from './CameraScanner';
 import { createBatch, getUniqueCategories, getUniqueDescriptions } from '../services/storage';
 import { AppSettings } from '../types';
 import { decodeQrCodeFromImageFile } from '../utils/qrDecoder';
+import { parseQrChunk, combineQrChunks } from '../utils/qrChunker';
 
 interface QrImportScannerScreenProps {
   batchName: string;
@@ -28,6 +29,11 @@ export const QrImportScannerScreen: React.FC<QrImportScannerScreenProps> = ({
   initialContent,
 }) => {
   const [scannedContent, setScannedContent] = useState<string | null>(initialContent || null);
+  const [receivedChunksMap, setReceivedChunksMap] = useState<Map<number, string>>(new Map());
+  const [totalChunks, setTotalChunks] = useState<number>(1);
+  const [transferId, setTransferId] = useState<string | null>(null);
+  const [chunkNotice, setChunkNotice] = useState<string | null>(null);
+
   const [selectedDelimiter, setSelectedDelimiter] = useState<'\n' | ';' | ','>('\n');
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [isProcessingImage, setIsProcessingImage] = useState(false);
@@ -37,6 +43,43 @@ export const QrImportScannerScreen: React.FC<QrImportScannerScreenProps> = ({
 
   const existingCategories = getUniqueCategories();
   const existingNames = getUniqueDescriptions();
+
+  // Handle incoming raw barcode / QR code text
+  const handleRawScan = (rawText: string) => {
+    if (!rawText) return;
+
+    const parsedChunk = parseQrChunk(rawText);
+
+    if (parsedChunk.isChunk) {
+      setTotalChunks(parsedChunk.totalParts);
+      setTransferId(parsedChunk.transferId);
+
+      setReceivedChunksMap((prev) => {
+        const nextMap = new Map(prev);
+        nextMap.set(parsedChunk.currentPart, parsedChunk.chunkData);
+
+        if (nextMap.size === parsedChunk.totalParts) {
+          // All parts received! Reconstruct payload
+          try {
+            const combinedStr = combineQrChunks(nextMap, parsedChunk.totalParts);
+            setScannedContent(combinedStr);
+            setChunkNotice(`⚡ Todas as ${parsedChunk.totalParts} partes do QR Code foram lidas com sucesso!`);
+          } catch (e: any) {
+            setUploadError(`Erro ao juntar as partes do QR: ${e.message}`);
+          }
+        } else {
+          setChunkNotice(
+            `Parte ${parsedChunk.currentPart} de ${parsedChunk.totalParts} lida! Falta ler as partes restantes (${Math.round((nextMap.size / parsedChunk.totalParts) * 100)}%).`
+          );
+        }
+
+        return nextMap;
+      });
+    } else {
+      // Single payload QR code
+      setScannedContent(rawText);
+    }
+  };
 
   // Auto-detect delimiter when content is scanned
   useEffect(() => {
@@ -54,6 +97,27 @@ export const QrImportScannerScreen: React.FC<QrImportScannerScreenProps> = ({
     let colCountError = 0;
 
     for (const line of rawLines) {
+      // Check if line is JSON format
+      if (line.startsWith('{') || line.startsWith('[')) {
+        try {
+          const jsonObj = JSON.parse(line);
+          if (Array.isArray(jsonObj)) {
+            jsonObj.forEach((item) => {
+              if (item.barcode || item.patrimonio || item.code) {
+                parsed.push({
+                  barcode: item.barcode || item.patrimonio || item.code,
+                  description: item.description || item.nome || item.nome_item,
+                  category: item.category || item.categoria,
+                });
+              } else if (typeof item === 'string') {
+                parsed.push({ barcode: item });
+              }
+            });
+            continue;
+          }
+        } catch (e) {}
+      }
+
       let cols = line.includes(delimiter) && delimiter !== '\n'
         ? line.split(delimiter).map((c) => c.replace(/^"|"$/g, '').trim()).filter(Boolean)
         : line.split(/[,;\t]|\s{2,}/).map((c) => c.replace(/^"|"$/g, '').trim()).filter(Boolean);
@@ -97,7 +161,7 @@ export const QrImportScannerScreen: React.FC<QrImportScannerScreenProps> = ({
 
     try {
       const text = await decodeQrCodeFromImageFile(file);
-      setScannedContent(text);
+      handleRawScan(text);
     } catch (err: any) {
       setUploadError(err?.message || 'Não foi possível ler o QR Code da imagem.');
     } finally {
@@ -211,12 +275,7 @@ export const QrImportScannerScreen: React.FC<QrImportScannerScreenProps> = ({
 
       {/* Main Container */}
       <main className="p-4 space-y-4 flex-1">
-        <div className="px-1">
-          <span className="text-[10px] font-mono font-bold bg-[var(--bg-secondary)] text-[var(--color-blue)] px-2.5 py-1 rounded-md border border-[var(--border-color)] shadow-xs inline-block">
-            QrImportScannerScreen.tsx
-          </span>
-        </div>
-
+        
         {/* Mode 1: Camera Scanner & File Upload Option */}
         {!scannedContent && (
           <div className="space-y-4">
@@ -247,11 +306,20 @@ export const QrImportScannerScreen: React.FC<QrImportScannerScreenProps> = ({
               </div>
             )}
 
+            {chunkNotice && (
+              <div className="bg-sky-500/10 border border-sky-500/30 text-sky-700 dark:text-sky-300 rounded-xl p-3 text-xs font-bold animate-in fade-in flex items-center gap-2">
+                <Layers className="w-4 h-4 text-sky-500 shrink-0" />
+                <span>{chunkNotice}</span>
+              </div>
+            )}
+
             {/* Camera Viewport Container */}
             <div className="relative w-full h-80 rounded-2xl overflow-hidden border border-[#c3c6d1] flex flex-col items-center justify-center bg-transparent">
-              <CameraScanner onScan={(barcode) => setScannedContent(barcode)} />
+              <CameraScanner onScan={(barcode) => handleRawScan(barcode)} />
               <div className="absolute bottom-3 inset-x-3 z-30 bg-black/60 backdrop-blur-md border border-white/10 rounded-xl p-2.5 text-center text-[11px] text-white">
-                Aponte para o QR Code ou clique em "Abrir Imagem" acima
+                {totalChunks > 1
+                  ? `Scanner em Modo Múltiplas Partes (${receivedChunksMap.size}/${totalChunks} Lidas)`
+                  : 'Aponte para o QR Code ou clique em "Abrir Imagem" acima'}
               </div>
             </div>
           </div>
