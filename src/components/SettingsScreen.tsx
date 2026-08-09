@@ -15,8 +15,12 @@ import {
   Sun,
   Moon,
   Monitor,
+  Trash2,
+  Lock,
+  Unlock,
+  ShieldAlert,
 } from 'lucide-react';
-import { AppSettings } from '../types';
+import { AppSettings, DeletePermission } from '../types';
 import { saveSettings } from '../services/storage';
 
 interface SettingsScreenProps {
@@ -89,8 +93,13 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
   };
 
   return (
-    <div className="min-h-screen text-[var(--text-primary)] flex flex-col max-w-md mx-auto p-6 select-none relative pb-12 border-x border-[var(--border-color)]">
+    <div className="min-h-screen text-[var(--text-primary)] bg-[var(--bg-primary)] flex flex-col max-w-md mx-auto p-6 select-none relative pb-12 border-x border-[var(--border-color)]">
       <div className="space-y-8 flex-1 overflow-y-auto pr-1 custom-scrollbar">
+        <div className="px-1 pt-2">
+          <span className="text-[10px] font-mono font-bold bg-[var(--bg-secondary)] text-[var(--color-blue)] px-2.5 py-1 rounded-md border border-[var(--border-color)] shadow-xs inline-block">
+            SettingsScreen.tsx
+          </span>
+        </div>
         {/* Header */}
         <div className="flex items-center justify-between border-b border-[var(--border-color)] pb-6">
           <div className="flex items-center gap-4">
@@ -109,9 +118,76 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                 <div><h3 className="text-sm font-black uppercase tracking-tight">Tema Visual</h3><p className="text-[10px] text-[var(--text-dim)] font-medium mt-1">Alternar modo claro e escuro</p></div>
              </div>
              <div className="grid grid-cols-2 gap-3 p-1.5 bg-[var(--bg-primary)] rounded-[1.25rem] border border-[var(--border-color)] shadow-inner">
-                <button onClick={() => updateSetting('theme', 'light')} className={`flex items-center justify-center gap-2 py-3.5 rounded-2xl transition-all duration-300 ${current.theme === 'light' ? 'bg-[var(--bg-secondary)] text-[var(--color-blue)] shadow-md' : 'text-[var(--text-dim)] hover:text-[var(--text-primary)]'}`}><Sun className={`w-4 h-4 ${current.theme === 'light' ? 'fill-current' : ''}`} /><span className="text-[10px] font-black uppercase tracking-widest">Claro</span></button>
-                <button onClick={() => updateSetting('theme', 'dark')} className={`flex items-center justify-center gap-2 py-3.5 rounded-2xl transition-all duration-300 ${current.theme === 'dark' ? 'bg-[var(--bg-secondary)] text-[var(--color-blue)] shadow-md' : 'text-[var(--text-dim)] hover:text-[var(--text-primary)]'}`}><Moon className={`w-4 h-4 ${current.theme === 'dark' ? 'fill-current' : ''}`} /><span className="text-[10px] font-black uppercase tracking-widest">Escuro</span></button>
+                <button onClick={() => updateSetting('theme', 'light')} className={`flex items-center justify-center gap-2 py-3 rounded-xl transition-all ${current.theme === 'light' ? 'bg-[var(--btn-primary-bg)] text-white shadow-xs font-bold' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] font-semibold'}`}><Sun className={`w-4 h-4 ${current.theme === 'light' ? 'fill-current' : ''}`} /><span className="text-xs uppercase tracking-wider">Claro</span></button>
+                <button onClick={() => updateSetting('theme', 'dark')} className={`flex items-center justify-center gap-2 py-3 rounded-xl transition-all ${current.theme === 'dark' ? 'bg-[var(--btn-primary-bg)] text-white shadow-xs font-bold' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] font-semibold'}`}><Moon className={`w-4 h-4 ${current.theme === 'dark' ? 'fill-current' : ''}`} /><span className="text-xs uppercase tracking-wider">Escuro</span></button>
              </div>
+          </div>
+        </div>
+
+        {/* Permissão de Exclusão */}
+        <div className="space-y-4">
+          <h2 className="text-[10px] font-black text-[var(--text-secondary)] uppercase tracking-[0.25em] ml-1">
+            Segurança de Leituras
+          </h2>
+          <div className="card-elevated p-6 space-y-5 shadow-lg border-amber-500/10">
+            <div className="flex items-center gap-4">
+              <div className="p-3 rounded-2xl bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+                <Trash2 className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="text-sm font-black uppercase tracking-tight">Exclusão de Registros</h3>
+                <p className="text-[10px] text-[var(--text-dim)] font-medium mt-0.5">
+                  Proteção contra apagar linhas acidentalmente
+                </p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-3 gap-2 p-1.5 bg-[var(--bg-primary)] rounded-[1.25rem] border border-[var(--border-color)] shadow-inner">
+              <button
+                onClick={() => updateSetting('deletePermission', 'LOCKED')}
+                className={`flex flex-col items-center justify-center gap-1 py-3 px-1 rounded-xl transition-all ${
+                  current.deletePermission === 'LOCKED'
+                    ? 'bg-amber-600 text-white shadow-xs font-bold'
+                    : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] font-semibold'
+                }`}
+              >
+                <Lock className="w-4 h-4" />
+                <span className="text-[10px] uppercase tracking-tight text-center">Bloqueado</span>
+              </button>
+
+              <button
+                onClick={() => updateSetting('deletePermission', 'ONCE')}
+                className={`flex flex-col items-center justify-center gap-1 py-3 px-1 rounded-xl transition-all ${
+                  current.deletePermission === 'ONCE'
+                    ? 'bg-sky-600 text-white shadow-xs font-bold'
+                    : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] font-semibold'
+                }`}
+              >
+                <Unlock className="w-4 h-4" />
+                <span className="text-[10px] uppercase tracking-tight text-center">Liberar 1x</span>
+              </button>
+
+              <button
+                onClick={() => updateSetting('deletePermission', 'ALWAYS')}
+                className={`flex flex-col items-center justify-center gap-1 py-3 px-1 rounded-xl transition-all ${
+                  current.deletePermission === 'ALWAYS'
+                    ? 'bg-emerald-600 text-white shadow-xs font-bold'
+                    : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] font-semibold'
+                }`}
+              >
+                <ShieldAlert className="w-4 h-4" />
+                <span className="text-[10px] uppercase tracking-tight text-center">Sempre Lib.</span>
+              </button>
+            </div>
+
+            <p className="text-[10px] text-[var(--text-dim)] font-medium italic leading-relaxed">
+              {current.deletePermission === 'LOCKED' &&
+                '• O botão de lixeira fica visível porém esmaecido. Ao clicar, solicitará confirmação de liberação.'}
+              {current.deletePermission === 'ONCE' &&
+                '• A exclusão está liberada para a próxima linha e será bloqueada automaticamente logo após.'}
+              {current.deletePermission === 'ALWAYS' &&
+                '• Botão de lixeira liberado sem restrições em todas as telas de leitura.'}
+            </p>
           </div>
         </div>
 

@@ -43,10 +43,28 @@ export type Screen =
   | 'qr_import'
   | 'verification_scan'
   | 'audit_results'
+  | 'audit_log'
   | 'export_batches'
   | 'settings';
 
 export type DeletePermission = 'LOCKED' | 'ONCE' | 'ALWAYS';
+
+export type AuditLogType =
+  | 'DUPLICATE_BLOCK'
+  | 'ITEM_REMOVED'
+  | 'MANUAL_ENTRY'
+  | 'IMPORT_START'
+  | 'BATCH_CLOSED'
+  | 'BATCH_OPENED';
+
+export interface AuditLog {
+  id: number;
+  batchId: number;
+  timestamp: number;
+  type: AuditLogType;
+  barcode?: string;
+  message: string;
+}
 
 export interface AppSettings {
   soundEnabled: boolean;

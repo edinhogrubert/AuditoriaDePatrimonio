@@ -29,8 +29,13 @@ export const NewBatchScreen: React.FC<NewBatchScreenProps> = ({
   };
 
   return (
-    <div className="min-h-screen text-[var(--text-primary)] flex flex-col justify-between max-w-md mx-auto p-6 select-none relative border-x border-[var(--border-color)]">
+    <div className="min-h-screen text-[var(--text-primary)] bg-[var(--bg-primary)] flex flex-col justify-between max-w-md mx-auto p-6 select-none relative border-x border-[var(--border-color)]">
       <div className="space-y-8 flex-1">
+        <div className="px-1">
+          <span className="text-[10px] font-mono font-bold bg-[var(--bg-secondary)] text-[var(--color-blue)] px-2.5 py-1 rounded-md border border-[var(--border-color)] shadow-xs inline-block">
+            NewBatchScreen.tsx
+          </span>
+        </div>
         {/* Top Header */}
         <div className="flex items-center gap-4 pb-6 border-b border-[var(--border-color)]">
           <button
@@ -94,13 +99,13 @@ export const NewBatchScreen: React.FC<NewBatchScreenProps> = ({
         <button
           onClick={() => handleSubmit()}
           disabled={!batchName.trim()}
-          className={`w-full h-16 rounded-[1.25rem] font-black text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-3 transition-all active:scale-[0.98] shadow-xl ${
+          className={`w-full h-14 rounded-2xl font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all active:scale-[0.98] shadow-md ${
             batchName.trim()
-              ? 'button-gradient-success text-[var(--bg-primary)] shadow-[var(--card-shadow)]'
+              ? 'bg-[#059669] hover:bg-[#047857] text-white'
               : 'bg-[var(--bg-secondary)] text-[var(--text-dim)] cursor-not-allowed border border-[var(--border-color)]'
           }`}
         >
-          <QrCode className="w-5 h-5" />
+          <QrCode className="w-5 h-5 text-emerald-200" />
           Gerar Lote Ativo
         </button>
       </div>

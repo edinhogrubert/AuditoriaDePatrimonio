@@ -33,7 +33,7 @@ export const CloseBatchModal: React.FC<CloseBatchModalProps> = ({
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className={`p-2.5 rounded-2xl ${missingCount > 0 ? 'bg-orange-500/15 text-orange-500 border-orange-500/30' : 'bg-[var(--color-emerald)]/15 text-[var(--color-emerald)] border-[var(--color-emerald)]/30'}`}>
+            <div className={`p-2.5 rounded-2xl ${missingCount > 0 ? 'bg-amber-500/15 text-amber-500 border border-amber-500/30' : 'bg-emerald-500/15 text-emerald-500 border border-emerald-500/30'}`}>
               {missingCount > 0 ? <AlertTriangle className="w-5 h-5" /> : <CheckCircle2 className="w-5 h-5" />}
             </div>
             <div>
@@ -55,7 +55,7 @@ export const CloseBatchModal: React.FC<CloseBatchModalProps> = ({
         </div>
 
         {missingCount > 0 ? (
-          <div className="bg-orange-500/10 border-orange-500/20 text-orange-500">
+          <div className="bg-amber-500/10 border border-amber-500/20 p-3.5 rounded-2xl text-xs font-semibold text-amber-600 dark:text-amber-400 space-y-1">
             <p className="font-bold flex items-center gap-1.5">
               <span>⚠️ Restam {missingCount} patrimônios não localizados!</span>
             </p>
@@ -64,14 +64,14 @@ export const CloseBatchModal: React.FC<CloseBatchModalProps> = ({
             </p>
           </div>
         ) : (
-          <div className="bg-[var(--color-emerald)]/10 border-[var(--color-emerald)]/20 text-[var(--color-emerald)]">
+          <div className="bg-emerald-500/10 border border-emerald-500/20 p-3.5 rounded-2xl text-xs font-semibold text-emerald-600 dark:text-emerald-400">
             <p className="font-bold">✓ 100% dos patrimônios foram encontrados com sucesso!</p>
           </div>
         )}
 
         <div className="space-y-2">
           <label className="text-[10px] font-black uppercase tracking-wider text-[var(--text-secondary)] flex items-center gap-1.5">
-            <FileText className="w-3.5 h-3.5 text-[var(--color-blue)]" />
+            <FileText className="w-3.5 h-3.5 text-sky-500" />
             <span>Motivo / Observação de Finalização</span>
           </label>
           <textarea
@@ -83,14 +83,14 @@ export const CloseBatchModal: React.FC<CloseBatchModalProps> = ({
                 : 'Ex: Auditoria realizada com sucesso sem pendências.'
             }
             rows={3}
-            className="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] text-xs font-medium rounded-2xl p-3 focus:outline-none focus:border-[var(--color-blue)] transition-colors shadow-inner resize-none text-[var(--text-primary)]"
+            className="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] text-xs font-medium rounded-2xl p-3 focus:outline-none focus:border-sky-500 transition-colors shadow-inner resize-none text-[var(--text-primary)]"
           />
         </div>
 
         <div className="space-y-2 pt-1">
           <button
             type="submit"
-            className="w-full py-3.5 px-4 bg-[var(--color-emerald)] hover:opacity-90 text-white rounded-2xl font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-md active:scale-95"
+            className="w-full py-3.5 px-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-md active:scale-95"
           >
             <CheckCircle2 className="w-4 h-4" />
             <span>FINALIZAR AUDITORIA</span>

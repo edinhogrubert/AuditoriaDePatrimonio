@@ -73,18 +73,18 @@ export const SequentialScanScreen: React.FC<SequentialScanScreenProps> = ({ onBa
   };
 
   return (
-    <div className={`relative w-full h-screen text-white flex flex-col select-none overflow-hidden max-w-md mx-auto ${isScanning ? 'bg-transparent' : 'bg-[var(--bg-primary)]'}`}>
+    <div className={`relative w-full h-screen text-white flex flex-col select-none overflow-hidden max-w-md mx-auto ${isScanning ? 'bg-transparent' : 'bg-[#0A0D14]'}`}>
       {/* Top Header */}
       <div className={`absolute top-0 inset-x-0 z-30 p-4 flex items-center justify-between ${isScanning ? 'bg-gradient-to-b from-black/80 to-transparent' : ''}`}>
         <button
           onClick={onBack}
-          className="p-2.5 rounded-full bg-[var(--bg-secondary)]/80 text-white border border-[var(--border-color)] backdrop-blur-md active:scale-95 transition-all shadow-lg"
+          className="p-2.5 rounded-full bg-[#1A1F26]/80 text-white border border-gray-800 backdrop-blur-md active:scale-95 transition-all shadow-lg"
         >
           <ArrowLeft className="w-5 h-5" />
         </button>
         <div className="text-center">
           <h2 className="text-base font-bold text-white tracking-wide">Ler em Sequência</h2>
-          <span className="text-[10px] text-[var(--color-blue)] font-semibold uppercase tracking-wider">
+          <span className="text-[10px] text-blue-400 font-semibold uppercase tracking-wider">
             {scannedItems.length} {scannedItems.length === 1 ? 'item lido' : 'itens lidos'}
           </span>
         </div>
@@ -92,7 +92,7 @@ export const SequentialScanScreen: React.FC<SequentialScanScreenProps> = ({ onBa
           {scannedItems.length > 0 && (
             <button
               onClick={handleExportCsv}
-              className="p-2.5 rounded-full bg-[var(--color-blue)]/20 text-[var(--color-blue)] border border-[var(--color-blue)]/30 backdrop-blur-md active:scale-95 transition-all shadow-lg"
+              className="p-2.5 rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/30 backdrop-blur-md active:scale-95 transition-all shadow-lg"
               title="Exportar CSV"
             >
               <Download className="w-4 h-4" />
@@ -107,7 +107,7 @@ export const SequentialScanScreen: React.FC<SequentialScanScreenProps> = ({ onBa
       </div>
 
       {/* Bottom Scanned List Drawer & Control Button */}
-      <div className={`absolute bottom-0 inset-x-0 z-40 bg-[var(--bg-secondary)]/95 backdrop-blur-xl border-t border-[var(--border-color)] flex flex-col rounded-t-3xl shadow-[var(--card-shadow)] transition-all duration-300 ${isScanning ? 'translate-y-[35vh]' : 'translate-y-0'}`}>
+      <div className={`absolute bottom-0 inset-x-0 z-40 bg-[#1A1F26]/95 backdrop-blur-xl border-t border-gray-800 flex flex-col rounded-t-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.5)] transition-all duration-300 ${isScanning ? 'translate-y-[35vh]' : 'translate-y-0'}`}>
 
         {/* Toggle Button - Anchored to the drawer top */}
         <div className="absolute -top-10 inset-x-0 flex justify-center pointer-events-none">
@@ -115,8 +115,8 @@ export const SequentialScanScreen: React.FC<SequentialScanScreenProps> = ({ onBa
             onClick={toggleScanning}
             className={`pointer-events-auto px-10 py-4 rounded-2xl font-black text-sm uppercase tracking-widest transition-all shadow-2xl active:scale-95 flex items-center gap-3 border-2 ${
               isScanning
-                ? 'bg-[var(--color-red)]/20 text-[var(--color-red)] border-[var(--color-red)]/30 backdrop-blur-md'
-                : 'bg-[var(--color-emerald)] text-[var(--bg-primary)] border-[var(--color-emerald)]/40 shadow-[var(--card-shadow)]'
+                ? 'bg-red-500/20 text-red-400 border-red-500/30 backdrop-blur-md'
+                : 'bg-emerald-500 text-[#0A0D14] border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.4)]'
             }`}
           >
             {isScanning ? (
@@ -134,10 +134,10 @@ export const SequentialScanScreen: React.FC<SequentialScanScreenProps> = ({ onBa
         </div>
 
         <div className="p-5 flex flex-col max-h-[45vh]">
-          <div className="flex items-center justify-between pb-3 mb-2 border-b border-[var(--border-color)]/80">
+          <div className="flex items-center justify-between pb-3 mb-2 border-b border-gray-800/80">
             <div className="flex items-center gap-2">
-              <List className="w-4 h-4 text-[var(--color-blue)]" />
-              <span className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">
+              <List className="w-4 h-4 text-blue-400" />
+              <span className="text-xs font-bold text-gray-300 uppercase tracking-wider">
                 Histórico Sequencial
               </span>
             </div>
@@ -145,7 +145,7 @@ export const SequentialScanScreen: React.FC<SequentialScanScreenProps> = ({ onBa
               <div className="flex items-center gap-2">
                 <button
                   onClick={handleCopyAll}
-                  className="text-xs text-[var(--color-blue)] font-bold hover:underline flex items-center gap-1"
+                  className="text-xs text-blue-400 font-bold hover:underline flex items-center gap-1"
                 >
                   {copied ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
                   {copied ? 'Copiado!' : 'Copiar Tudo'}
@@ -162,7 +162,7 @@ export const SequentialScanScreen: React.FC<SequentialScanScreenProps> = ({ onBa
           </div>
 
           {scannedItems.length === 0 ? (
-            <div className="py-8 text-center text-[var(--text-dim)] text-xs">
+            <div className="py-8 text-center text-gray-500 text-xs">
               Nenhum código lido ainda nesta sessão.
             </div>
           ) : (
@@ -170,15 +170,15 @@ export const SequentialScanScreen: React.FC<SequentialScanScreenProps> = ({ onBa
               {scannedItems.map((item, idx) => (
                 <div
                   key={item.id}
-                  className="bg-[var(--bg-primary)] border border-[var(--border-color)]/80 rounded-xl p-3.5 flex items-center justify-between text-xs transition-all hover:border-gray-700"
+                  className="bg-[#0A0D14] border border-gray-800/80 rounded-xl p-3.5 flex items-center justify-between text-xs transition-all hover:border-gray-700"
                 >
                   <div className="flex items-center gap-3 min-w-0 flex-1">
-                    <span className="w-7 h-7 rounded-lg bg-blue-500/10 text-[var(--color-blue)] font-bold flex items-center justify-center text-[10px] shrink-0 border border-blue-500/20">
+                    <span className="w-7 h-7 rounded-lg bg-blue-500/10 text-blue-400 font-bold flex items-center justify-center text-[10px] shrink-0 border border-blue-500/20">
                       {scannedItems.length - idx}
                     </span>
                     <div className="min-w-0 flex-1">
                       <p className="font-mono text-white font-bold truncate tracking-tight text-sm">{item.code}</p>
-                      <p className="text-[10px] text-[var(--text-dim)] mt-0.5 font-medium">{item.format} • {item.time}</p>
+                      <p className="text-[10px] text-gray-500 mt-0.5 font-medium">{item.format} • {item.time}</p>
                     </div>
                   </div>
                   <button

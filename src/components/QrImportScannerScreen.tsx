@@ -174,7 +174,7 @@ export const QrImportScannerScreen: React.FC<QrImportScannerScreenProps> = ({
   };
 
   return (
-    <div className={`min-h-screen text-[var(--text-primary)] flex flex-col justify-between max-w-md mx-auto select-none relative pb-16 shadow-[var(--card-shadow)] border-x border-[var(--border-color)] transition-colors ${!scannedContent ? 'bg-transparent' : 'bg-[var(--bg-primary)]'}`}>
+    <div className={`min-h-screen text-[#0b1c30] flex flex-col justify-between max-w-md mx-auto select-none relative pb-16 shadow-xl border-x border-[#c3c6d1]/30 transition-colors ${!scannedContent ? 'bg-transparent' : 'bg-[#f8f9ff]'}`}>
       
       {/* Hidden File Input for PC upload */}
       <input
@@ -186,23 +186,23 @@ export const QrImportScannerScreen: React.FC<QrImportScannerScreenProps> = ({
       />
 
       {/* Top Header */}
-      <header className="bg-[var(--bg-secondary)] border-b border-[var(--border-color)] px-4 h-14 flex items-center justify-between sticky top-0 z-50 shadow-sm">
+      <header className="bg-white border-b border-[#e5eeff] px-4 h-14 flex items-center justify-between sticky top-0 z-50 shadow-sm">
         <div className="flex items-center gap-3">
           <button
             onClick={onBack}
-            className="p-1.5 rounded-full hover:bg-[var(--bg-primary)] text-[var(--color-blue)] transition-colors"
+            className="p-1.5 rounded-full hover:bg-[#eff4ff] text-[#002b59] transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
           <div>
-            <h1 className="text-sm font-bold text-[var(--text-primary)]">Escanear QR Mestre</h1>
-            <p className="text-[10px] text-[var(--text-secondary)] font-medium">Importação Rápida de Ativos</p>
+            <h1 className="text-sm font-bold text-[#002b59]">Escanear QR Mestre</h1>
+            <p className="text-[10px] text-[#43474f] font-medium">Importação Rápida de Ativos</p>
           </div>
         </div>
 
         <button
           onClick={() => fileInputRef.current?.click()}
-          className="px-3 py-1.5 bg-[var(--bg-accent)] hover:opacity-80 text-[var(--color-blue)] rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all border border-[var(--border-color)]"
+          className="px-3 py-1.5 bg-[#e5eeff] hover:bg-[#dce9ff] text-[#002b59] rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all border border-[#c3c6d1]/60"
         >
           <Upload className="w-3.5 h-3.5" />
           Abrir Imagem
@@ -211,25 +211,30 @@ export const QrImportScannerScreen: React.FC<QrImportScannerScreenProps> = ({
 
       {/* Main Container */}
       <main className="p-4 space-y-4 flex-1">
-        
+        <div className="px-1">
+          <span className="text-[10px] font-mono font-bold bg-[var(--bg-secondary)] text-[var(--color-blue)] px-2.5 py-1 rounded-md border border-[var(--border-color)] shadow-xs inline-block">
+            QrImportScannerScreen.tsx
+          </span>
+        </div>
+
         {/* Mode 1: Camera Scanner & File Upload Option */}
         {!scannedContent && (
           <div className="space-y-4">
-            <div className="bg-[var(--bg-secondary)]/90 backdrop-blur-sm border border-[var(--border-color)] rounded-2xl p-4 shadow-sm space-y-3">
+            <div className="bg-white/90 backdrop-blur-sm border border-[#c3c6d1]/60 rounded-2xl p-4 shadow-sm space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <QrCode className="w-5 h-5 text-[var(--color-blue)]" />
-                  <h2 className="text-sm font-bold text-[var(--text-primary)]">Importar por Câmera ou Arquivo</h2>
+                  <QrCode className="w-5 h-5 text-[#002b59]" />
+                  <h2 className="text-sm font-bold text-[#0b1c30]">Importar por Câmera ou Arquivo</h2>
                 </div>
               </div>
-              <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
+              <p className="text-xs text-[#43474f] leading-relaxed">
                 Aponte a câmera para o QR Code Mestre contendo a lista de patrimônios ou selecione uma foto salva no seu computador.
               </p>
 
               {/* Action Button: PC File Upload */}
               <button
                 onClick={() => fileInputRef.current?.click()}
-                className="w-full bg-[var(--color-blue)] hover:opacity-90 text-white rounded-xl py-3 font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition-all active:scale-[0.99]"
+                className="w-full bg-[#002b59] hover:bg-[#1a4175] text-white rounded-xl py-3 font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition-all active:scale-[0.99]"
               >
                 <ImageIcon className="w-4 h-4" />
                 Carregar Imagem com QR Code do Computador (PC)
@@ -237,13 +242,13 @@ export const QrImportScannerScreen: React.FC<QrImportScannerScreenProps> = ({
             </div>
 
             {uploadError && (
-              <div className="bg-[var(--color-red)]/10 text-[var(--color-red)] border border-[var(--color-red)]/30 rounded-xl p-3 text-xs font-medium">
+              <div className="bg-[#ffdad6] text-[#93000a] border border-[#ba1a1a]/30 rounded-xl p-3 text-xs font-medium">
                 {uploadError}
               </div>
             )}
 
             {/* Camera Viewport Container */}
-            <div className="relative w-full h-80 rounded-2xl overflow-hidden border border-[var(--border-color)] flex flex-col items-center justify-center bg-transparent">
+            <div className="relative w-full h-80 rounded-2xl overflow-hidden border border-[#c3c6d1] flex flex-col items-center justify-center bg-transparent">
               <CameraScanner onScan={(barcode) => setScannedContent(barcode)} />
               <div className="absolute bottom-3 inset-x-3 z-30 bg-black/60 backdrop-blur-md border border-white/10 rounded-xl p-2.5 text-center text-[11px] text-white">
                 Aponte para o QR Code ou clique em "Abrir Imagem" acima
@@ -255,16 +260,16 @@ export const QrImportScannerScreen: React.FC<QrImportScannerScreenProps> = ({
         {/* Mode 2: Content Review */}
         {scannedContent && (
           <div className="space-y-4">
-            <div className="bg-[var(--color-emerald)]/10 border border-[var(--color-emerald)]/30 rounded-2xl p-4 space-y-1">
-              <h2 className="text-sm font-bold text-[var(--color-emerald)]">QR Code Lido com Sucesso!</h2>
-              <p className="text-xs text-[var(--text-secondary)]">
-                Encontramos <span className="font-bold text-[var(--text-primary)]">{parsedItems.length} patrimônios</span> no código.
+            <div className="bg-[#e6f4ea] border border-[#006a6a]/30 rounded-2xl p-4 space-y-1">
+              <h2 className="text-sm font-bold text-[#004f4f]">QR Code Lido com Sucesso!</h2>
+              <p className="text-xs text-[#006a6a]">
+                Encontramos <span className="font-bold">{parsedItems.length} patrimônios</span> no código.
               </p>
             </div>
 
             {/* Delimiter Selection */}
-            <div className="bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-2xl p-4 space-y-2 shadow-sm">
-              <label className="text-[10px] font-bold text-[var(--text-secondary)] tracking-wider uppercase block">
+            <div className="bg-white border border-[#c3c6d1]/60 rounded-2xl p-4 space-y-2 shadow-sm">
+              <label className="text-[10px] font-bold text-[#43474f] tracking-wider uppercase block">
                 SELECIONE O DELIMITADOR
               </label>
               <div className="grid grid-cols-3 gap-2">
@@ -279,8 +284,8 @@ export const QrImportScannerScreen: React.FC<QrImportScannerScreenProps> = ({
                     onClick={() => setSelectedDelimiter(item.val as any)}
                     className={`py-2 text-xs font-bold rounded-xl border transition-all ${
                       selectedDelimiter === item.val
-                        ? 'bg-[var(--color-blue)] text-white border-[var(--color-blue)] shadow-sm'
-                        : 'bg-[var(--bg-primary)] text-[var(--text-secondary)] border-[var(--border-color)] hover:bg-[var(--bg-secondary)]'
+                        ? 'bg-[#002b59] text-white border-[#002b59] shadow-sm'
+                        : 'bg-white text-[#43474f] border-[#c3c6d1] hover:bg-[#eff4ff]'
                     }`}
                   >
                     {item.label}
@@ -290,21 +295,21 @@ export const QrImportScannerScreen: React.FC<QrImportScannerScreenProps> = ({
             </div>
 
             {/* Global Configuration Panel */}
-            <div className="bg-[var(--bg-accent)] border border-[var(--border-color)] rounded-2xl p-4 space-y-3 shadow-md">
-              <p className="text-[10px] font-extrabold text-[var(--color-emerald)] flex items-center gap-1">
+            <div className="bg-[#e5eeff] border border-[#a9c7ff] rounded-2xl p-4 space-y-3 shadow-md">
+              <p className="text-[10px] font-extrabold text-[#006a6a] flex items-center gap-1">
                 <Sparkles className="w-3 h-3" /> CONFIGURAÇÃO GLOBAL
               </p>
 
               <div className="grid grid-cols-2 gap-2">
                 <div className="space-y-1">
-                  <label className="text-[9px] font-bold text-[var(--text-secondary)] uppercase block">NOME PADRÃO</label>
+                  <label className="text-[9px] font-bold text-[#43474f] uppercase block">NOME PADRÃO</label>
                   <input
                     type="text"
                     list="qr-names-list"
                     value={globalName}
                     onChange={(e) => setGlobalName(e.target.value)}
                     placeholder="Ex: Notebook"
-                    className="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-lg px-2 py-1.5 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-blue)]"
+                    className="w-full bg-white border border-[#c3c6d1] rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:border-[#002b59]"
                   />
                   <datalist id="qr-names-list">
                     {existingNames.map(name => <option key={name} value={name} />)}
@@ -312,14 +317,14 @@ export const QrImportScannerScreen: React.FC<QrImportScannerScreenProps> = ({
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-[9px] font-bold text-[var(--text-secondary)] uppercase block">CATEGORIA PADRÃO</label>
+                  <label className="text-[9px] font-bold text-[#43474f] uppercase block">CATEGORIA PADRÃO</label>
                   <input
                     type="text"
                     list="qr-categories-list"
                     value={globalCategory}
                     onChange={(e) => setGlobalCategory(e.target.value)}
                     placeholder="Ex: TI"
-                    className="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-lg px-2 py-1.5 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-blue)]"
+                    className="w-full bg-white border border-[#c3c6d1] rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:border-[#002b59]"
                   />
                   <datalist id="qr-categories-list">
                     {existingCategories.map(cat => <option key={cat} value={cat} />)}
@@ -329,19 +334,19 @@ export const QrImportScannerScreen: React.FC<QrImportScannerScreenProps> = ({
             </div>
 
             {/* Preview Items Card */}
-            <div className="bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-2xl p-4 space-y-2 shadow-sm">
-              <label className="text-[10px] font-bold text-[var(--text-secondary)] tracking-wider uppercase block">
+            <div className="bg-white border border-[#c3c6d1]/60 rounded-2xl p-4 space-y-2 shadow-sm">
+              <label className="text-[10px] font-bold text-[#43474f] tracking-wider uppercase block">
                 PRÉVIA DOS ITENS ({parsedItems.length})
               </label>
               <div className="max-h-56 overflow-y-auto space-y-2 font-mono-code text-xs">
                 {parsedItems.slice(0, 10).map((item, idx) => (
-                  <div key={idx} className="flex items-center gap-2.5 py-1.5 border-b border-[var(--border-color)] last:border-0">
-                    <Tag className="w-3.5 h-3.5 text-[var(--color-blue)] shrink-0" />
-                    <span className="text-[var(--text-primary)] font-bold truncate">{item}</span>
+                  <div key={idx} className="flex items-center gap-2.5 py-1.5 border-b border-[#e5eeff] last:border-0">
+                    <Tag className="w-3.5 h-3.5 text-[#002b59] shrink-0" />
+                    <span className="text-[#0b1c30] font-bold truncate">{item}</span>
                   </div>
                 ))}
                 {parsedItems.length > 10 && (
-                  <div className="pt-2 text-center text-[10px] text-[var(--text-dim)] font-semibold">
+                  <div className="pt-2 text-center text-[10px] text-[#737780] font-semibold">
                     ... e mais {parsedItems.length - 10} itens na lista
                   </div>
                 )}
@@ -355,16 +360,16 @@ export const QrImportScannerScreen: React.FC<QrImportScannerScreenProps> = ({
                   setScannedContent(null);
                   setUploadError(null);
                 }}
-                className="py-3 bg-[var(--bg-secondary)] hover:bg-[var(--bg-primary)] border border-[var(--border-color)] text-[var(--color-blue)] rounded-2xl font-bold text-xs flex items-center justify-center gap-2 transition-all shadow-sm active:scale-95"
+                className="py-3 bg-white hover:bg-[#eff4ff] border border-[#c3c6d1] text-[#002b59] rounded-2xl font-bold text-xs flex items-center justify-center gap-2 transition-all shadow-sm active:scale-95"
               >
-                <RefreshCw className="w-4 h-4 text-[var(--color-blue)]" />
+                <RefreshCw className="w-4 h-4 text-[#002b59]" />
                 Repetir / Nova Imagem
               </button>
 
               <button
                 onClick={handleConfirmImport}
                 disabled={parsedItems.length === 0}
-                className="py-3 bg-[var(--color-blue)] hover:opacity-90 text-white rounded-2xl font-bold text-xs flex items-center justify-center gap-2 transition-all shadow-md active:scale-[0.99] disabled:opacity-50"
+                className="py-3 bg-[#002b59] hover:bg-[#1a4175] text-white rounded-2xl font-bold text-xs flex items-center justify-center gap-2 transition-all shadow-md active:scale-[0.99] disabled:opacity-50"
               >
                 <Check className="w-4 h-4" />
                 Confirmar e Abrir

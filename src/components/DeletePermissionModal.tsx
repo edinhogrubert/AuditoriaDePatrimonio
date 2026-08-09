@@ -31,7 +31,7 @@ export const DeletePermissionModal: React.FC<DeletePermissionModalProps> = ({
         <div className="bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-[2.2rem] p-6 w-full max-w-sm space-y-5 shadow-2xl scale-100">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className={`p-2.5 rounded-2xl border ${isAlways ? 'bg-[var(--color-emerald)]/15 text-[var(--color-emerald)] border-[var(--color-emerald)]/30' : 'bg-[var(--color-blue)]/15 text-[var(--color-blue)] border-[var(--color-blue)]/30'}`}>
+              <div className={`p-2.5 rounded-2xl border ${isAlways ? 'bg-emerald-500/15 text-emerald-500 border-emerald-500/30' : 'bg-sky-500/15 text-sky-500 border-sky-500/30'}`}>
                 {isAlways ? <ShieldCheck className="w-5 h-5" /> : <Unlock className="w-5 h-5" />}
               </div>
               <div>
@@ -65,7 +65,7 @@ export const DeletePermissionModal: React.FC<DeletePermissionModalProps> = ({
           <div className="space-y-2.5">
             <button
               onClick={onConfirmDelete}
-              className="w-full py-3.5 px-4 bg-[var(--color-red)] hover:opacity-90 text-white rounded-2xl font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2.5 transition-all shadow-md active:scale-95"
+              className="w-full py-3.5 px-4 bg-red-600 hover:bg-red-500 text-white rounded-2xl font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2.5 transition-all shadow-md active:scale-95"
             >
               <Trash2 className="w-4 h-4" />
               <span>Sim, Excluir Item</span>
@@ -88,7 +88,7 @@ export const DeletePermissionModal: React.FC<DeletePermissionModalProps> = ({
       <div className="bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-[2.2rem] p-6 w-full max-w-sm space-y-5 shadow-2xl scale-100">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-2xl bg-orange-500/15 text-orange-500 border-orange-500/30">
+            <div className="p-2.5 rounded-2xl bg-amber-500/15 text-amber-500 border border-amber-500/30">
               <Lock className="w-5 h-5" />
             </div>
             <div>
@@ -115,7 +115,7 @@ export const DeletePermissionModal: React.FC<DeletePermissionModalProps> = ({
         <div className="space-y-2.5">
           <button
             onClick={onConfirmDeleteOnce}
-            className="w-full py-3.5 px-4 bg-[var(--color-blue)] hover:opacity-90 text-white rounded-2xl font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2.5 transition-all shadow-md active:scale-95"
+            className="w-full py-3.5 px-4 bg-sky-600 hover:bg-sky-500 text-white rounded-2xl font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2.5 transition-all shadow-md active:scale-95"
           >
             <Unlock className="w-4 h-4" />
             <span>Liberar 1x e Excluir Item</span>

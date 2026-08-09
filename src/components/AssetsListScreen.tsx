@@ -80,7 +80,7 @@ export const AssetsListScreen: React.FC<AssetsListScreenProps> = ({
           </button>
           <div>
             <h1 className="text-lg font-black uppercase tracking-tight flex items-center gap-2">
-              <Boxes className="w-5 h-5 text-[var(--color-blue)]" />
+              <Boxes className="w-5 h-5 text-sky-500" />
               <span>Patrimônios</span>
             </h1>
             <p className="text-[10px] text-[var(--text-dim)] font-medium">
@@ -91,6 +91,11 @@ export const AssetsListScreen: React.FC<AssetsListScreenProps> = ({
       </div>
 
       <div className="py-4 space-y-4 flex-1 overflow-hidden flex flex-col">
+        <div className="px-1">
+          <span className="text-[10px] font-mono font-bold bg-[var(--bg-secondary)] text-[var(--color-blue)] px-2.5 py-1 rounded-md border border-[var(--border-color)] shadow-xs inline-block">
+            AssetsListScreen.tsx
+          </span>
+        </div>
         {/* Search Bar */}
         <div className="relative">
           <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--text-dim)]" />
@@ -117,7 +122,7 @@ export const AssetsListScreen: React.FC<AssetsListScreenProps> = ({
             onClick={() => setSelectedStatus('ALL')}
             className={`px-3 py-1.5 rounded-xl text-[11px] font-bold transition-all border whitespace-nowrap ${
               selectedStatus === 'ALL'
-                ? 'bg-[var(--color-blue)]/15 border-[var(--color-blue)]/30 text-[var(--color-blue)]'
+                ? 'bg-sky-500/15 border-sky-500/30 text-sky-600 dark:text-sky-400'
                 : 'bg-[var(--bg-secondary)] border-[var(--border-color)] text-[var(--text-secondary)]'
             }`}
           >
@@ -128,7 +133,7 @@ export const AssetsListScreen: React.FC<AssetsListScreenProps> = ({
             onClick={() => setSelectedStatus('ENCONTRADO')}
             className={`px-3 py-1.5 rounded-xl text-[11px] font-bold transition-all border whitespace-nowrap ${
               selectedStatus === 'ENCONTRADO'
-                ? 'bg-[var(--color-emerald)]/15 border-[var(--color-emerald)]/30 text-[var(--color-emerald)]'
+                ? 'bg-emerald-500/15 border-emerald-500/30 text-emerald-600 dark:text-emerald-400'
                 : 'bg-[var(--bg-secondary)] border-[var(--border-color)] text-[var(--text-secondary)]'
             }`}
           >
@@ -139,7 +144,7 @@ export const AssetsListScreen: React.FC<AssetsListScreenProps> = ({
             onClick={() => setSelectedStatus('PENDENTE')}
             className={`px-3 py-1.5 rounded-xl text-[11px] font-bold transition-all border whitespace-nowrap ${
               selectedStatus === 'PENDENTE'
-                ? 'bg-orange-500/15 border-orange-500/30 text-orange-600'
+                ? 'bg-amber-500/15 border-amber-500/30 text-amber-600 dark:text-amber-400'
                 : 'bg-[var(--bg-secondary)] border-[var(--border-color)] text-[var(--text-secondary)]'
             }`}
           >
@@ -150,7 +155,7 @@ export const AssetsListScreen: React.FC<AssetsListScreenProps> = ({
             onClick={() => setSelectedStatus('SOBRA_COLETADO')}
             className={`px-3 py-1.5 rounded-xl text-[11px] font-bold transition-all border whitespace-nowrap ${
               selectedStatus === 'SOBRA_COLETADO'
-                ? 'bg-[var(--color-blue)]/15 border-[var(--color-blue)]/30 text-[var(--color-blue)]'
+                ? 'bg-purple-500/15 border-purple-500/30 text-purple-600 dark:text-purple-400'
                 : 'bg-[var(--bg-secondary)] border-[var(--border-color)] text-[var(--text-secondary)]'
             }`}
           >
@@ -179,11 +184,11 @@ export const AssetsListScreen: React.FC<AssetsListScreenProps> = ({
                 badgeIcon = <CheckCircle2 className="w-3.5 h-3.5" />;
                 badgeLabel = 'Encontrado';
               } else if (item.status === 'SOBRA') {
-                badgeColor = 'bg-orange-500/10 border-orange-500/20 text-orange-600';
+                badgeColor = 'bg-orange-500/10 border-orange-500/20 text-orange-600 dark:text-orange-400';
                 badgeIcon = <AlertTriangle className="w-3.5 h-3.5" />;
                 badgeLabel = 'Sobra';
               } else if (item.status === 'COLETADO') {
-                badgeColor = 'bg-[var(--color-blue)]/10 border-[var(--color-blue)]/20 text-[var(--color-blue)]';
+                badgeColor = 'bg-sky-500/10 border-sky-500/20 text-sky-600 dark:text-sky-400';
                 badgeIcon = <PackageCheck className="w-3.5 h-3.5" />;
                 badgeLabel = 'Coletado';
               }

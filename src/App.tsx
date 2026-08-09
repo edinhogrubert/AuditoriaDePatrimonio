@@ -23,6 +23,7 @@ import { BatchScanScreen } from './components/BatchScanScreen';
 import { VerificationScanScreen } from './components/VerificationScanScreen';
 import { BatchDetailsScreen } from './components/BatchDetailsScreen';
 import { AuditResultsScreen } from './components/AuditResultsScreen';
+import { AuditLogScreen } from './components/AuditLogScreen';
 import { ExportBatchesScreen } from './components/ExportBatchesScreen';
 import { SettingsScreen } from './components/SettingsScreen';
 import { GeneralReportsScreen } from './components/GeneralReportsScreen';
@@ -34,6 +35,7 @@ export function App() {
   const [activeBatchId, setActiveBatchId] = useState<number | null>(null);
   const [qrImportBatchName, setQrImportBatchName] = useState<string>('Conferência QR');
   const [targetBatchId, setTargetBatchId] = useState<number | null>(null);
+  const [qrInitialContent, setQrInitialContent] = useState<string | null>(null);
   const [batchListFilter, setBatchListFilter] = useState<'ALL' | 'COLLECTION' | 'VERIFICATION' | 'PENDING' | 'COMPLETED'>('ALL');
 
   const [batches, setBatches] = useState<Batch[]>([]);
@@ -50,10 +52,14 @@ export function App() {
   }, []);
 
   useEffect(() => {
-    if (settings.theme === 'light') {
-      document.documentElement.classList.add('light-mode');
-    } else {
+    if (settings.theme === 'dark') {
+      document.documentElement.classList.add('dark-mode');
+      document.documentElement.classList.add('dark');
       document.documentElement.classList.remove('light-mode');
+    } else {
+      document.documentElement.classList.remove('dark-mode');
+      document.documentElement.classList.remove('dark');
+      document.documentElement.classList.add('light-mode');
     }
   }, [settings.theme]);
 
@@ -124,7 +130,15 @@ export function App() {
     setCurrentScreen('batch_details');
   };
 
-  const activeBatch = batches.find((b) => b.id === activeBatchId);
+  const allStoredBatches = getStoredBatches();
+  const allStoredScanItems = getStoredScanItems();
+
+  const activeBatch = activeBatchId
+    ? batches.find((b) => b.id === activeBatchId) ||
+      allStoredBatches.find((b) => b.id === activeBatchId) ||
+      getStoredBatches().find((b) => b.id === activeBatchId)
+    : undefined;
+
   const activeBatchItems = activeBatchId
     ? scanItems.filter((item) => item.batchId === activeBatchId)
     : [];
@@ -134,12 +148,12 @@ export function App() {
       {currentScreen === 'menu' && (
         <MainScreen
           onNavigate={(screen, filter) => {
-             if (filter) {
-               setBatchListFilter(filter as any);
-             } else {
-               setBatchListFilter('ALL');
-             }
-             setCurrentScreen(screen as Screen);
+            if (filter) {
+              setBatchListFilter(filter as any);
+            } else {
+              setBatchListFilter('ALL');
+            }
+            setCurrentScreen(screen as Screen);
           }}
           onOpenBatchDetails={(batchId) => {
             setActiveBatchId(batchId);
@@ -160,6 +174,7 @@ export function App() {
         <BatchListScreen
           batches={batches}
           initialFilter={batchListFilter}
+          hideQuickActions={batchListFilter === 'PENDING' || batchListFilter === 'COMPLETED'}
           onBack={() => setCurrentScreen('menu')}
           onNewBatchClick={() => setCurrentScreen('new_batch')}
           onImportInventoryClick={() => {
@@ -209,9 +224,10 @@ export function App() {
           }}
           onCreateVerificationBatch={handleCreateVerificationBatch}
           onAddExpectedToBatch={handleAddExpectedToBatch}
-          onNavigateQrImport={(batchName, targetId) => {
+          onNavigateQrImport={(batchName, targetId, initialContent) => {
             setQrImportBatchName(batchName);
             setTargetBatchId(targetId || null);
+            setQrInitialContent(initialContent || null);
             setCurrentScreen('qr_import');
           }}
           onNavigate={(screen) => setCurrentScreen(screen as Screen)}
@@ -227,8 +243,12 @@ export function App() {
       {currentScreen === 'qr_import' && (
         <QrImportScannerScreen
           batchName={qrImportBatchName}
-          onBack={() => setCurrentScreen('import_inventory')}
+          onBack={() => {
+            setQrInitialContent(null);
+            setCurrentScreen('import_inventory');
+          }}
           onImported={(batchId) => {
+            setQrInitialContent(null);
             refreshData();
             setActiveBatchId(batchId);
             setCurrentScreen('batch_details');
@@ -236,6 +256,7 @@ export function App() {
           onAddExpectedToBatch={handleAddExpectedToBatch}
           targetBatchId={targetBatchId || undefined}
           settings={settings}
+          initialContent={qrInitialContent || undefined}
         />
       )}
 
@@ -275,8 +296,16 @@ export function App() {
             setCurrentScreen('import_inventory');
           }}
           onViewResults={() => setCurrentScreen('audit_results')}
+          onViewLog={() => setCurrentScreen('audit_log')}
           onRefresh={refreshData}
           onDeleteItem={handleDeleteScanItem}
+        />
+      )}
+
+      {currentScreen === 'audit_log' && activeBatch && (
+        <AuditLogScreen
+          batch={activeBatch}
+          onBack={() => setCurrentScreen('batch_details')}
         />
       )}
 

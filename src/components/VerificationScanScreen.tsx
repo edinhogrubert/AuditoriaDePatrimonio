@@ -95,19 +95,19 @@ export const VerificationScanScreen: React.FC<VerificationScanScreenProps> = ({
       </main>
 
       {/* Bottom Overlay Sheet (Progress, Status, Actions) */}
-      <footer className="relative z-20 w-full bg-[var(--bg-secondary)] text-white rounded-t-3xl shadow-[0_-4px_24px_rgba(0,0,0,0.5)] flex flex-col border-t border-[var(--border-color)]">
+      <footer className="relative z-20 w-full bg-[#1A1F26] text-white rounded-t-3xl shadow-[0_-4px_24px_rgba(0,0,0,0.5)] flex flex-col border-t border-gray-800">
         
         {/* Progress Bar Section */}
         <div className="w-full pt-4 px-5">
           <div className="flex justify-between items-end mb-1.5">
             <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Progresso</span>
-            <span className="text-xs font-bold text-[var(--color-emerald)] font-mono-code">
+            <span className="text-xs font-bold text-emerald-400 font-mono-code">
               {stats.foundCount}/{stats.totalExpected || 0}
             </span>
           </div>
           <div className="w-full bg-gray-800 h-2 rounded-full overflow-hidden">
             <div
-              className="bg-[var(--color-emerald)] h-full rounded-full transition-all duration-500 ease-out shadow-[var(--card-shadow)]"
+              className="bg-emerald-500 h-full rounded-full transition-all duration-500 ease-out shadow-[0_0_10px_#10B981]"
               style={{ width: `${Math.min(100, stats.progressPercent)}%` }}
             />
           </div>
@@ -115,14 +115,14 @@ export const VerificationScanScreen: React.FC<VerificationScanScreenProps> = ({
 
         {/* Feedback Card (Última Leitura) */}
         <div className="px-5 mt-4">
-          <div className="bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-2xl p-4 flex items-center shadow-sm">
+          <div className="bg-[#0A0D14] border border-gray-800 rounded-2xl p-4 flex items-center shadow-sm">
             <div
               className={`w-10 h-10 rounded-xl flex items-center justify-center mr-3 shrink-0 ${
                 lastScanResult?.status === 'DUPLICATE'
                   ? 'bg-orange-500/10 text-orange-400 border border-orange-500/20'
                   : lastScanResult?.status === 'EXTRA'
-                  ? 'bg-red-500/10 text-[var(--color-red)] border border-red-500/20'
-                  : 'bg-emerald-500/10 text-[var(--color-emerald)] border border-emerald-500/20'
+                  ? 'bg-red-500/10 text-red-400 border border-red-500/20'
+                  : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
               }`}
             >
               {lastScanResult?.status === 'DUPLICATE' ? (
@@ -142,7 +142,7 @@ export const VerificationScanScreen: React.FC<VerificationScanScreenProps> = ({
                 {lastScanResult?.barcode || 'Pronto para ler'}
               </p>
               <p className={`text-[10px] font-bold mt-0.5 ${
-                lastScanResult?.status === 'EXTRA' ? 'text-[var(--color-red)]' : 'text-[var(--color-emerald)]'
+                lastScanResult?.status === 'EXTRA' ? 'text-red-400' : 'text-emerald-400'
               }`}>
                 {lastScanResult?.message || 'Aguardando bipagem...'}
               </p>
@@ -154,7 +154,7 @@ export const VerificationScanScreen: React.FC<VerificationScanScreenProps> = ({
         <div className="p-5 pt-4">
           <button
             onClick={onViewAuditResults}
-            className="w-full h-14 bg-[var(--color-emerald)] text-[var(--bg-primary)] shadow-[var(--card-shadow)]"
+            className="w-full h-14 bg-emerald-500 hover:bg-emerald-600 text-[#0A0D14] rounded-2xl font-black text-xs uppercase tracking-widest transition-all active:scale-95 shadow-lg shadow-emerald-900/10"
           >
             Finalizar e Ver Resultados
           </button>

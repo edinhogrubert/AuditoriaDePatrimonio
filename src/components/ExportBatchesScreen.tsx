@@ -42,8 +42,13 @@ export const ExportBatchesScreen: React.FC<ExportBatchesScreenProps> = ({
   };
 
   return (
-    <div className="min-h-screen text-[var(--text-primary)] flex flex-col justify-between max-w-md mx-auto p-6 select-none relative border-x border-[var(--border-color)] pb-8">
+    <div className="min-h-screen text-[var(--text-primary)] bg-[var(--bg-primary)] flex flex-col justify-between max-w-md mx-auto p-6 select-none relative border-x border-[var(--border-color)] pb-8">
       <div className="space-y-8 flex-1 overflow-hidden flex flex-col">
+        <div className="px-1">
+          <span className="text-[10px] font-mono font-bold bg-[var(--bg-secondary)] text-[var(--color-blue)] px-2.5 py-1 rounded-md border border-[var(--border-color)] shadow-xs inline-block">
+            ExportBatchesScreen.tsx
+          </span>
+        </div>
         {/* Top Header */}
         <div className="flex items-center gap-4 pb-6 border-b border-[var(--border-color)] shrink-0">
           <button
@@ -128,13 +133,13 @@ export const ExportBatchesScreen: React.FC<ExportBatchesScreenProps> = ({
         <button
           onClick={handleExport}
           disabled={selectedIds.length === 0}
-          className={`w-full h-16 rounded-[1.25rem] font-black text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-3 transition-all active:scale-[0.98] shadow-xl ${
+          className={`w-full h-14 rounded-2xl font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all active:scale-[0.98] shadow-md ${
             selectedIds.length > 0
-              ? 'button-gradient-primary text-white shadow-[var(--card-shadow)] border border-blue-400/20'
+              ? 'bg-[#002b59] hover:bg-[#0f3d73] text-white'
               : 'bg-[var(--bg-secondary)] text-[var(--text-dim)] cursor-not-allowed border border-[var(--border-color)] opacity-40'
           }`}
         >
-          <Download className="w-5 h-5" />
+          <Download className="w-5 h-5 text-sky-300" />
           Gerar Relatório ({selectedIds.length})
         </button>
       </div>
