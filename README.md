@@ -12,6 +12,7 @@ O **AuditInventário** é uma solução híbrida (React + Capacitor) de alto des
 - [Instalação e Execução](#-instalação-e-execução)
 - [Arquitetura](#-arquitetura)
 - [Licença](#-licença)
+- [📖 Manual de Operação e Guia Técnico](docs/manual_operacao.md)
 
 ---
 
