@@ -53,7 +53,7 @@ export const MainScreen: React.FC<MainScreenProps> = ({ onNavigate, onOpenBatchD
       <header className="bg-[var(--bg-secondary)] border-b border-[var(--border-color)] px-4 h-16 flex items-center justify-between sticky top-0 z-50 shadow-sm transition-colors">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-full bg-[var(--bg-accent)] text-white flex items-center justify-center font-bold text-xs shadow-sm overflow-hidden border border-white/20">
-            <span>EA</span>
+            <span>EGS</span>
           </div>
           <h1 className="text-base font-bold text-[var(--text-primary)] tracking-tight">Inventário & Auditoria</h1>
         </div>
@@ -63,7 +63,7 @@ export const MainScreen: React.FC<MainScreenProps> = ({ onNavigate, onOpenBatchD
           title="Ajustes"
         >
           <Bell className="w-5 h-5 text-[var(--text-primary)]" />
-          <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-red-500 shadow-sm"></span>
+          <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-red-500 shadow-sm">Grubert</span>
         </button>
       </header>
 

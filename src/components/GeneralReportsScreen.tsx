@@ -285,7 +285,6 @@ ${
         </div>
       </div>
 
-      {/* File Identification Badge */}
       <div className="py-2">
         <span className="text-[10px] font-mono font-bold bg-[var(--bg-secondary)] text-[var(--color-blue)] px-2.5 py-1 rounded-md border border-[var(--border-color)] shadow-xs inline-block">GeneralReportsScreen.tsx</span>
       </div>

@@ -457,198 +457,79 @@ export const BatchDetailsScreen: React.FC<BatchDetailsScreenProps> = ({
           )}
         </div>
 
-        {/* Visual Audit Summary & Metric Distribution Section (Replacing Item Rows) */}
-        <div className="card-elevated p-4 rounded-2xl border border-[var(--border-color)] shadow-xs space-y-4 flex-1 overflow-y-auto custom-scrollbar flex flex-col justify-between">
-          <div className="space-y-4">
-            {/* Top Card Header & Accuracy Badge */}
-            <div className="flex items-center justify-between gap-2 border-b border-[var(--border-color)] pb-3">
-              <div className="flex items-center gap-2">
-                <BarChart3 className="w-4 h-4 text-sky-500 shrink-0" />
-                <h2 className="text-xs font-black uppercase tracking-tight text-[var(--text-primary)]">
-                  Resumo da Auditoria
-                </h2>
-                {batch.type === 'VERIFICATION' && (
-                  <span className="text-[10px] font-extrabold text-sky-600 dark:text-sky-400 bg-sky-500/10 px-2 py-0.5 rounded-full border border-sky-500/20">
-                    {stats.progressPercent}% Acurácia
-                  </span>
+        {/* Visual Audit Summary Card (As shown in screenshot) */}
+        <div className="card-elevated p-4 rounded-2xl border border-[var(--border-color)] shadow-xs space-y-4 shrink-0">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <BarChart3 className="w-4 h-4 text-sky-500 shrink-0" />
+              <h2 className="text-xs font-black uppercase tracking-tight text-[var(--text-primary)] leading-tight">
+                Resumo da<br/>Auditoria
+              </h2>
+            </div>
+
+            {batch.type === 'VERIFICATION' && (
+              <div className="flex items-center gap-3">
+                <span className="text-[10px] font-black uppercase text-sky-400 bg-sky-400/10 px-3 py-1.5 rounded-full border border-sky-400/20 shadow-inner">
+                  {stats.progressPercent}% Acurácia
+                </span>
+
+                <button
+                  onClick={onViewResults}
+                  className="flex items-center gap-1 text-[11px] font-black text-sky-400 uppercase tracking-wider hover:underline group"
+                >
+                  <span>Ver Relatório</span>
+                  <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                </button>
+              </div>
+            )}
+          </div>
+
+          <div className="w-full h-px bg-[var(--border-color)] opacity-40" />
+
+          {/* Single Segmented Progress Bar */}
+          {batch.type === 'VERIFICATION' && (
+            <div className="space-y-4">
+              <div className="w-full bg-[var(--bg-primary)] h-3 rounded-full overflow-hidden flex border border-[var(--border-color)] p-0.5">
+                {stats.foundCount > 0 && (
+                  <div
+                    style={{ width: `${(stats.foundCount / Math.max(1, stats.totalExpected + stats.extraCount)) * 100}%` }}
+                    className="bg-emerald-500 h-full rounded-l-full transition-all duration-700"
+                  />
+                )}
+                {stats.missingCount > 0 && (
+                  <div
+                    style={{ width: `${(stats.missingCount / Math.max(1, stats.totalExpected + stats.extraCount)) * 100}%` }}
+                    className="bg-red-500 h-full transition-all duration-700"
+                  />
+                )}
+                {stats.extraCount > 0 && (
+                  <div
+                    style={{ width: `${(stats.extraCount / Math.max(1, stats.totalExpected + stats.extraCount)) * 100}%` }}
+                    className="bg-amber-500 h-full rounded-r-full transition-all duration-700"
+                  />
                 )}
               </div>
 
-              <button
-                onClick={onViewResults}
-                className="flex items-center gap-1 text-[11px] font-black text-sky-600 dark:text-sky-400 uppercase tracking-wider hover:underline"
-              >
-                <span>Ver Relatório</span>
-                <ChevronRight className="w-4 h-4" />
-              </button>
-            </div>
-
-            {/* Top Overall Progress Bar (Ok / Falta / Extra Segmented Bar) */}
-            {batch.type === 'VERIFICATION' && stats.totalExpected > 0 && (
-              <div className="space-y-1.5">
-                <div className="w-full bg-[var(--bg-primary)] h-3 rounded-full overflow-hidden flex border border-[var(--border-color)] p-0.5">
-                  {stats.foundCount > 0 && (
-                    <div
-                      style={{ width: `${(stats.foundCount / Math.max(1, stats.totalExpected + stats.extraCount)) * 100}%` }}
-                      className="bg-emerald-500 h-full rounded-l-full transition-all duration-500"
-                      title={`Ok: ${stats.foundCount}`}
-                    />
-                  )}
-                  {stats.missingCount > 0 && (
-                    <div
-                      style={{ width: `${(stats.missingCount / Math.max(1, stats.totalExpected + stats.extraCount)) * 100}%` }}
-                      className="bg-red-500 h-full transition-all duration-500"
-                      title={`Falta: ${stats.missingCount}`}
-                    />
-                  )}
-                  {stats.extraCount > 0 && (
-                    <div
-                      style={{ width: `${(stats.extraCount / Math.max(1, stats.totalExpected + stats.extraCount)) * 100}%` }}
-                      className="bg-amber-500 h-full rounded-r-full transition-all duration-500"
-                      title={`Extra: ${stats.extraCount}`}
-                    />
-                  )}
+              {/* Professional Legend with Circles */}
+              <div className="flex justify-between items-center px-1">
+                <div className="flex items-center gap-1.5">
+                  <div className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
+                  <span className="text-xs font-black text-[var(--text-primary)]">{stats.foundCount} Ok</span>
                 </div>
-                <div className="flex justify-between items-center text-[10px] text-[var(--text-dim)] font-extrabold px-1">
-                  <span className="text-emerald-600 dark:text-emerald-400">🟢 {stats.foundCount} Ok</span>
-                  <span className="text-red-500">🔴 {stats.missingCount} Falta</span>
-                  <span className="text-amber-500">🟠 {stats.extraCount} Extra</span>
+                <div className="flex items-center gap-1.5">
+                  <div className="w-2.5 h-2.5 rounded-full bg-red-500" />
+                  <span className="text-xs font-black text-[var(--text-primary)]">{stats.missingCount} Falta</span>
                 </div>
-              </div>
-            )}
-
-            {/* 4 Stacked Rows Layout Matching Mockup Diagram */}
-            <div className="space-y-3 pt-1">
-              {/* Row 1: TODOS */}
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={onViewResults}
-                  className="w-20 h-14 bg-[#002b59] hover:bg-[#0f3d73] text-white border border-sky-500/30 rounded-xl flex flex-col items-center justify-center shrink-0 transition-all active:scale-95 shadow-sm"
-                >
-                  <span className="text-[9px] font-black uppercase text-sky-300 tracking-wider">Todos</span>
-                  <span className="text-base font-black mt-0.5 leading-none">
-                    {batch.type === 'VERIFICATION' ? stats.totalExpected : scanItems.length}
-                  </span>
-                </button>
-                <div className="flex-1 space-y-1.5">
-                  <div className="w-full bg-[var(--bg-primary)] h-4 rounded-lg overflow-hidden border border-[var(--border-color)] p-0.5 relative flex items-center">
-                    <div className="bg-sky-500 h-full w-full rounded-md transition-all duration-500" />
-                  </div>
-                  <div className="flex justify-between items-center text-[10px] font-bold text-[var(--text-secondary)] px-0.5">
-                    <span>Ativos Esperados na Mestre</span>
-                    <span className="font-mono-code text-[var(--text-primary)]">
-                      {batch.type === 'VERIFICATION' ? stats.totalExpected : scanItems.length}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Row 2: OK */}
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={onViewResults}
-                  className="w-20 h-14 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 rounded-xl flex flex-col items-center justify-center shrink-0 transition-all active:scale-95 shadow-sm"
-                >
-                  <span className="text-[9px] font-black uppercase tracking-wider">OK</span>
-                  <span className="text-base font-black mt-0.5 leading-none">
-                    {batch.type === 'VERIFICATION' ? stats.foundCount : scanItems.length}
-                  </span>
-                </button>
-                <div className="flex-1 space-y-1.5">
-                  <div className="w-full bg-[var(--bg-primary)] h-4 rounded-lg overflow-hidden border border-[var(--border-color)] p-0.5 relative flex items-center">
-                    <div
-                      className="bg-emerald-500 h-full rounded-md transition-all duration-500"
-                      style={{
-                        width: `${
-                          batch.type === 'VERIFICATION'
-                            ? Math.min(100, (stats.foundCount / Math.max(1, stats.totalExpected)) * 100)
-                            : 100
-                        }%`,
-                      }}
-                    />
-                  </div>
-                  <div className="flex justify-between items-center text-[10px] font-bold text-emerald-600 dark:text-emerald-400 px-0.5">
-                    <span>🟢 {stats.foundCount} Localizados</span>
-                    <span className="font-mono-code">
-                      {batch.type === 'VERIFICATION'
-                        ? `${Math.round((stats.foundCount / Math.max(1, stats.totalExpected)) * 100)}%`
-                        : '100%'}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Row 3: FALTA */}
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={onViewResults}
-                  className="w-20 h-14 bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400 border border-red-500/30 rounded-xl flex flex-col items-center justify-center shrink-0 transition-all active:scale-95 shadow-sm"
-                >
-                  <span className="text-[9px] font-black uppercase tracking-wider">Falta</span>
-                  <span className="text-base font-black mt-0.5 leading-none">
-                    {batch.type === 'VERIFICATION' ? stats.missingCount : 0}
-                  </span>
-                </button>
-                <div className="flex-1 space-y-1.5">
-                  <div className="w-full bg-[var(--bg-primary)] h-4 rounded-lg overflow-hidden border border-[var(--border-color)] p-0.5 relative flex items-center">
-                    <div
-                      className="bg-red-500 h-full rounded-md transition-all duration-500"
-                      style={{
-                        width: `${
-                          batch.type === 'VERIFICATION'
-                            ? Math.min(100, (stats.missingCount / Math.max(1, stats.totalExpected)) * 100)
-                            : 0
-                        }%`,
-                      }}
-                    />
-                  </div>
-                  <div className="flex justify-between items-center text-[10px] font-bold text-red-600 dark:text-red-400 px-0.5">
-                    <span>🔴 {stats.missingCount} Ausentes</span>
-                    <span className="font-mono-code">
-                      {batch.type === 'VERIFICATION'
-                        ? `${Math.round((stats.missingCount / Math.max(1, stats.totalExpected)) * 100)}%`
-                        : '0%'}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Row 4: EXTRA */}
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={onViewResults}
-                  className="w-20 h-14 bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-500/30 rounded-xl flex flex-col items-center justify-center shrink-0 transition-all active:scale-95 shadow-sm"
-                >
-                  <span className="text-[9px] font-black uppercase tracking-wider">Extra</span>
-                  <span className="text-base font-black mt-0.5 leading-none">
-                    {batch.type === 'VERIFICATION' ? stats.extraCount : 0}
-                  </span>
-                </button>
-                <div className="flex-1 space-y-1.5">
-                  <div className="w-full bg-[var(--bg-primary)] h-4 rounded-lg overflow-hidden border border-[var(--border-color)] p-0.5 relative flex items-center">
-                    <div
-                      className="bg-amber-500 h-full rounded-md transition-all duration-500"
-                      style={{
-                        width: `${
-                          batch.type === 'VERIFICATION'
-                            ? Math.min(100, (stats.extraCount / Math.max(1, stats.totalExpected)) * 100)
-                            : 0
-                        }%`,
-                      }}
-                    />
-                  </div>
-                  <div className="flex justify-between items-center text-[10px] font-bold text-amber-600 dark:text-amber-400 px-0.5">
-                    <span>🟠 {stats.extraCount} Sobras Encontradas</span>
-                    <span className="font-mono-code">
-                      {batch.type === 'VERIFICATION' && stats.totalExpected > 0
-                        ? `${Math.round((stats.extraCount / stats.totalExpected) * 100)}%`
-                        : '0%'}
-                    </span>
-                  </div>
+                <div className="flex items-center gap-1.5">
+                  <div className="w-2.5 h-2.5 rounded-full bg-amber-500" />
+                  <span className="text-xs font-black text-[var(--text-primary)]">{stats.extraCount} Extra</span>
                 </div>
               </div>
             </div>
-          </div>
+          )}
+        </div>
+
+        <div className="flex-1" /> {/* Spacer */}
 
           {/* Bottom Card ("Alguma outra coisa nesse espaço" -> Executive Diagnostic Card) */}
           <div className="bg-[var(--bg-primary)] border border-[var(--border-color)] p-3.5 rounded-xl space-y-2.5 mt-2 shadow-2xs">
