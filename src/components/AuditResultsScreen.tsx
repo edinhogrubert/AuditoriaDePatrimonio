@@ -15,12 +15,14 @@ import {
   FileUp,
   CheckCircle2,
   RotateCcw,
+  RefreshCw,
 } from 'lucide-react';
 import { Batch, ExpectedItem, ScanItem } from '../types';
 import {
   getExpectedItemsForBatch,
   getScanItemsForBatch,
   getAuditStatsForBatch,
+  reconcileBatchAudit,
   exportAuditReportCsv,
   deleteScanItemAndSync,
   deleteItemFromBatch,
@@ -62,6 +64,15 @@ export const AuditResultsScreen: React.FC<AuditResultsScreenProps> = ({
 
   const [refreshKey, setRefreshKey] = useState(0);
   const triggerRefresh = () => setRefreshKey((k) => k + 1);
+
+  const [reconcileNotice, setReconcileNotice] = useState<string | null>(null);
+
+  const handleReconcile = () => {
+    const newStats = reconcileBatchAudit(batch.id);
+    setReconcileNotice(`Lógica sincronizada: ${newStats.foundCount} OK, ${newStats.missingCount} Falta, ${newStats.extraCount} Extra.`);
+    setTimeout(() => setReconcileNotice(null), 4500);
+    triggerRefresh();
+  };
 
   const expectedItems = getExpectedItemsForBatch(batch.id);
   const scanItems = getScanItemsForBatch(batch.id);
@@ -241,6 +252,51 @@ export const AuditResultsScreen: React.FC<AuditResultsScreenProps> = ({
               style={{ width: `${stats.progressPercent}%` }}
             />
           </div>
+        </div>
+
+        {/* Audit Metrics & Recalculate Logic Card */}
+        <div className="bg-[var(--bg-secondary)] border border-[var(--border-color)] p-4 rounded-2xl space-y-3 shadow-xs">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <BarChart3 className="w-4 h-4 text-sky-500" />
+              <span className="text-xs font-black uppercase tracking-wider text-[var(--text-primary)]">
+                Métricas da Auditoria
+              </span>
+            </div>
+            <button
+              onClick={handleReconcile}
+              className="px-3 py-1.5 bg-[#002b59] hover:bg-[#0f3d73] text-white rounded-xl text-[10px] font-black uppercase tracking-wider transition-all active:scale-95 shadow-sm flex items-center gap-1.5"
+              title="Refazer conciliação entre leituras e lista mestre"
+            >
+              <RefreshCw className="w-3.5 h-3.5 text-sky-300" />
+              <span>Recalcular Lógica</span>
+            </button>
+          </div>
+
+          <div className="grid grid-cols-4 gap-2 text-center pt-1">
+            <div className="bg-[var(--bg-primary)] p-2 rounded-xl border border-[var(--border-color)]">
+              <span className="text-[9px] font-extrabold uppercase text-[var(--text-dim)] block">Mestre</span>
+              <span className="text-sm font-black text-sky-600 dark:text-sky-400">{stats.totalExpected}</span>
+            </div>
+            <div className="bg-[var(--bg-primary)] p-2 rounded-xl border border-[var(--border-color)]">
+              <span className="text-[9px] font-extrabold uppercase text-emerald-600 dark:text-emerald-400 block">OK</span>
+              <span className="text-sm font-black text-emerald-600 dark:text-emerald-400">{stats.foundCount}</span>
+            </div>
+            <div className="bg-[var(--bg-primary)] p-2 rounded-xl border border-[var(--border-color)]">
+              <span className="text-[9px] font-extrabold uppercase text-red-500 block">Falta</span>
+              <span className="text-sm font-black text-red-500">{stats.missingCount}</span>
+            </div>
+            <div className="bg-[var(--bg-primary)] p-2 rounded-xl border border-[var(--border-color)]">
+              <span className="text-[9px] font-extrabold uppercase text-amber-500 block">Extra</span>
+              <span className="text-sm font-black text-amber-500">{stats.extraCount}</span>
+            </div>
+          </div>
+
+          {reconcileNotice && (
+            <div className="bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-[11px] font-bold p-2.5 rounded-xl text-center animate-in fade-in">
+              {reconcileNotice}
+            </div>
+          )}
         </div>
 
         <div className="relative">

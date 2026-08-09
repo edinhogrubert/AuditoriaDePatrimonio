@@ -97,6 +97,14 @@ export const BatchDetailsScreen: React.FC<BatchDetailsScreenProps> = ({
 
   const [itemFilter, setItemFilter] = useState<'ALL' | 'FOUND' | 'MISSING' | 'EXTRA'>('ALL');
   const [recordSearch, setRecordSearch] = useState('');
+  const [reconcileNotice, setReconcileNotice] = useState<string | null>(null);
+
+  const handleReconcile = () => {
+    const updatedStats = reconcileBatchAudit(batch.id);
+    setReconcileNotice(`Lógica sincronizada: ${updatedStats.foundCount} OK, ${updatedStats.missingCount} Falta, ${updatedStats.extraCount} Extra.`);
+    setTimeout(() => setReconcileNotice(null), 4500);
+    onRefresh();
+  };
 
   // Extra scans (scans not present in expected list) for VERIFICATION batches
   const extraScans = useMemo(() => {
@@ -457,32 +465,54 @@ export const BatchDetailsScreen: React.FC<BatchDetailsScreenProps> = ({
           )}
         </div>
 
-        {/* Visual Audit Summary Card (As shown in screenshot) */}
+        {/* Visual Audit Summary Card (Enterprise Refinement) */}
         <div className="card-elevated p-4 rounded-2xl border border-[var(--border-color)] shadow-xs space-y-4 shrink-0">
+          {/* Header row matching screenshot exactly */}
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2">
               <BarChart3 className="w-4 h-4 text-sky-500 shrink-0" />
-              <h2 className="text-xs font-black uppercase tracking-tight text-[var(--text-primary)] leading-tight">
+              <h2 className="text-[10px] font-black uppercase tracking-tight text-[var(--text-primary)] leading-tight">
                 Resumo da<br/>Auditoria
               </h2>
             </div>
 
             {batch.type === 'VERIFICATION' && (
-              <div className="flex items-center gap-3">
-                <span className="text-[10px] font-black uppercase text-sky-400 bg-sky-400/10 px-3 py-1.5 rounded-full border border-sky-400/20 shadow-inner">
+              <div className="flex items-center gap-2">
+                {/* Accuracy Pill */}
+                <span className="text-[9px] font-black uppercase text-sky-400 bg-sky-400/10 px-2 py-1.5 rounded-full border border-sky-400/20 shadow-inner whitespace-nowrap">
                   {stats.progressPercent}% Acurácia
                 </span>
 
+                {/* Recalcular Lógica Button (Blue style) */}
+                <button
+                  onClick={handleReconcile}
+                  className="px-3 py-2 bg-[#002b59] hover:bg-[#0f3d73] text-white rounded-xl text-[9px] font-black uppercase tracking-tighter transition-all active:scale-95 shadow-sm flex items-center gap-2 leading-none"
+                  title="Recalcular Lógica de Auditoria"
+                >
+                  <RotateCcw className="w-3.5 h-3.5 text-sky-300" />
+                  <div className="flex flex-col items-center">
+                    <span>Recalcular</span>
+                    <span>Lógica</span>
+                  </div>
+                </button>
+
+                {/* Relatório Link */}
                 <button
                   onClick={onViewResults}
-                  className="flex items-center gap-1 text-[11px] font-black text-sky-400 uppercase tracking-wider hover:underline group"
+                  className="flex items-center gap-0.5 text-[10px] font-black text-sky-400 uppercase tracking-wider hover:underline group ml-1"
                 >
-                  <span>Ver Relatório</span>
-                  <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                  <span>Relatório</span>
+                  <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
                 </button>
               </div>
             )}
           </div>
+
+          {reconcileNotice && (
+            <div className="bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold p-2 rounded-xl text-center animate-in fade-in">
+              {reconcileNotice}
+            </div>
+          )}
 
           <div className="w-full h-px bg-[var(--border-color)] opacity-40" />
 
@@ -510,19 +540,19 @@ export const BatchDetailsScreen: React.FC<BatchDetailsScreenProps> = ({
                 )}
               </div>
 
-              {/* Professional Legend with Circles */}
+              {/* Professional Legend with Circles (Matching screenshot) */}
               <div className="flex justify-between items-center px-1">
                 <div className="flex items-center gap-1.5">
-                  <div className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
-                  <span className="text-xs font-black text-[var(--text-primary)]">{stats.foundCount} Ok</span>
+                  <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_5px_rgba(16,185,129,0.5)]" />
+                  <span className="text-[11px] font-black text-[var(--text-primary)]">{stats.foundCount} Ok</span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <div className="w-2.5 h-2.5 rounded-full bg-red-500" />
-                  <span className="text-xs font-black text-[var(--text-primary)]">{stats.missingCount} Falta</span>
+                  <div className="w-2.5 h-2.5 rounded-full bg-red-500 shadow-[0_0_5px_rgba(239,68,68,0.5)]" />
+                  <span className="text-[11px] font-black text-[var(--text-primary)]">{stats.missingCount} Falta</span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <div className="w-2.5 h-2.5 rounded-full bg-amber-500" />
-                  <span className="text-xs font-black text-[var(--text-primary)]">{stats.extraCount} Extra</span>
+                  <div className="w-2.5 h-2.5 rounded-full bg-amber-500 shadow-[0_0_5px_rgba(245,158,11,0.5)]" />
+                  <span className="text-[11px] font-black text-[var(--text-primary)]">{stats.extraCount} Extra</span>
                 </div>
               </div>
             </div>

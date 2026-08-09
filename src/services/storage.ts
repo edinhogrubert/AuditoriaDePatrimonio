@@ -402,6 +402,54 @@ export interface AuditStats {
   progressPercent: number;
 }
 
+export const reconcileBatchAudit = (batchId: number): AuditStats => {
+  const expectedItems = getStoredExpectedItems();
+  const scanItems = getScanItemsForBatch(batchId);
+  const scannedBarcodesMap = new Map<string, number>();
+
+  scanItems.forEach((scan) => {
+    const key = scan.barcode.trim().toLowerCase();
+    if (!scannedBarcodesMap.has(key) || scan.timestamp < scannedBarcodesMap.get(key)!) {
+      scannedBarcodesMap.set(key, scan.timestamp);
+    }
+  });
+
+  let hasExpectedForBatch = false;
+  const updatedExpected = expectedItems.map((exp) => {
+    if (exp.batchId === batchId) {
+      hasExpectedForBatch = true;
+      const key = exp.barcode.trim().toLowerCase();
+      const matchTimestamp = scannedBarcodesMap.get(key);
+      if (matchTimestamp !== undefined) {
+        return { ...exp, isFound: true, timestampFound: matchTimestamp };
+      } else {
+        return { ...exp, isFound: false, timestampFound: undefined };
+      }
+    }
+    return exp;
+  });
+
+  saveExpectedItems(updatedExpected);
+
+  // If batch has expected items, ensure batch type is 'VERIFICATION'
+  if (hasExpectedForBatch) {
+    const batches = getStoredBatches();
+    const updatedBatches = batches.map((b) =>
+      b.id === batchId && b.type !== 'VERIFICATION' ? { ...b, type: 'VERIFICATION' as const } : b
+    );
+    saveBatches(updatedBatches);
+  }
+
+  addAuditLog(
+    batchId,
+    'AUDIT_RECONCILED',
+    '',
+    'Recálculo e conciliação completa da lógica do negócio (TODOS, OK, FALTANTE, EXTRA)'
+  );
+
+  return getAuditStatsForBatch(batchId);
+};
+
 export const getAuditStatsForBatch = (batchId: number): AuditStats => {
   const expected = getExpectedItemsForBatch(batchId);
   const scans = getScanItemsForBatch(batchId);

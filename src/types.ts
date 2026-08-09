@@ -55,7 +55,8 @@ export type AuditLogType =
   | 'MANUAL_ENTRY'
   | 'IMPORT_START'
   | 'BATCH_CLOSED'
-  | 'BATCH_OPENED';
+  | 'BATCH_OPENED'
+  | 'AUDIT_RECONCILED';
 
 export interface AuditLog {
   id: number;
