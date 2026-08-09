@@ -57,10 +57,21 @@ export const BatchListScreen: React.FC<BatchListScreenProps> = ({
   const getTitle = () => {
     if (filterType === 'PENDING') return 'Auditorias Pendentes';
     if (filterType === 'COMPLETED') return 'Auditorias Completas';
-    return 'Lotes de Inventário';
+    return 'Arquivos';
   };
 
+  // Quick actions visible on main views (Todos, Simples, Auditoria) but hidden on specific status filters (Pendentes, Completas)
   const showActions = !hideQuickActions && filterType !== 'PENDING' && filterType !== 'COMPLETED';
+
+  const getTabBgColor = (id: string) => {
+    switch (id) {
+      case 'VERIFICATION': return 'bg-[var(--color-blue)]';
+      case 'COLLECTION': return 'bg-purple-600';
+      case 'PENDING': return 'bg-orange-500';
+      case 'COMPLETED': return 'bg-[var(--color-emerald)]';
+      default: return 'bg-sky-700'; // For 'ALL' (Todos)
+    }
+  };
 
   return (
     <div className="min-h-screen text-[var(--text-primary)] flex flex-col max-w-md mx-auto p-6 select-none relative pb-10 shadow-xl border-x border-[var(--border-color)] bg-[var(--bg-primary)] transition-colors">
@@ -95,13 +106,13 @@ export const BatchListScreen: React.FC<BatchListScreenProps> = ({
           <div className="grid grid-cols-2 gap-3 shrink-0">
             <button
               onClick={onNewBatchClick}
-              className="card-elevated p-5 flex flex-col items-start gap-3 transition-all active:scale-95"
+              className="card-elevated p-5 flex flex-col items-start gap-3 transition-all active:scale-95 border-purple-500/10"
             >
               <div className="w-11 h-11 rounded-[1rem] bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-500 shadow-sm">
                 <Plus className="w-6 h-6" />
               </div>
               <div>
-                <h3 className="text-[11px] font-black uppercase tracking-widest text-purple-500">Lote Vazio</h3>
+                <h3 className="text-[11px] font-black uppercase tracking-widest text-purple-600">Lote Vazio</h3>
                 <p className="text-[10px] text-[var(--text-secondary)] mt-1 font-medium">Coleta do zero</p>
               </div>
             </button>
@@ -137,7 +148,7 @@ export const BatchListScreen: React.FC<BatchListScreenProps> = ({
               onClick={() => setFilterType(tab.id)}
               className={`min-w-[80px] py-2.5 text-[9px] font-black uppercase tracking-[0.15em] rounded-xl transition-all duration-200 ${
                 filterType === tab.id
-                ? (tab.id === 'VERIFICATION' ? 'bg-[var(--color-blue)]' : (tab.id === 'PENDING' ? 'bg-orange-500' : (tab.id === 'COMPLETED' ? 'bg-[var(--color-emerald)]' : (tab.id === 'COLLECTION' ? 'bg-purple-500' : 'bg-[var(--text-primary)] text-[var(--bg-primary)]')))) + ' text-white shadow-lg'
+                ? `${getTabBgColor(tab.id)} text-white shadow-lg`
                 : 'text-[var(--text-dim)] hover:text-[var(--text-primary)]'
               }`}
             >
