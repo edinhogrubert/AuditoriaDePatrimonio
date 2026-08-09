@@ -132,29 +132,43 @@ export const BatchListScreen: React.FC<BatchListScreenProps> = ({
           </div>
         )}
 
-        {/* Custom Tabs */}
-        <div className="flex gap-2 p-1.5 bg-[var(--bg-secondary)] rounded-2xl border border-[var(--border-color)] shadow-inner shrink-0 overflow-x-auto no-scrollbar">
-          {(
-            [
-              { id: 'ALL', label: 'Todos' },
-              { id: 'PENDING', label: 'Pendentes' },
-              { id: 'COMPLETED', label: 'Completas' },
-              { id: 'COLLECTION', label: 'Simples' },
-              { id: 'VERIFICATION', label: 'Auditoria' },
-            ] as const
-          ).map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setFilterType(tab.id)}
-              className={`min-w-[80px] py-2.5 text-[9px] font-black uppercase tracking-[0.15em] rounded-xl transition-all duration-200 ${
-                filterType === tab.id
-                ? `${getTabBgColor(tab.id)} text-white shadow-lg`
-                : 'text-[var(--text-dim)] hover:text-[var(--text-primary)]'
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
+        {/* Custom Tabs - Smart Split Layout */}
+        <div className="flex flex-col gap-2 shrink-0">
+          {/* Primary Filter: Todos */}
+          <button
+            onClick={() => setFilterType('ALL')}
+            className={`w-full py-3 text-[10px] font-black uppercase tracking-[0.2em] rounded-2xl transition-all duration-200 border ${
+              filterType === 'ALL'
+              ? 'bg-sky-700 border-sky-600 text-white shadow-lg'
+              : 'bg-[var(--bg-secondary)] border-[var(--border-color)] text-[var(--text-dim)] hover:text-[var(--text-primary)] shadow-sm'
+            }`}
+          >
+            Todos os Arquivos
+          </button>
+
+          {/* Secondary Filters Grid: 2x2 */}
+          <div className="grid grid-cols-2 gap-2">
+             {(
+               [
+                 { id: 'PENDING', label: 'Pendentes' },
+                 { id: 'COMPLETED', label: 'Completas' },
+                 { id: 'COLLECTION', label: 'Simples' },
+                 { id: 'VERIFICATION', label: 'Auditoria' },
+               ] as const
+             ).map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setFilterType(tab.id)}
+                  className={`py-3 text-[9px] font-black uppercase tracking-[0.1em] rounded-2xl transition-all duration-200 border ${
+                    filterType === tab.id
+                    ? `${getTabBgColor(tab.id)} border-transparent text-white shadow-lg`
+                    : 'bg-[var(--bg-secondary)] border-[var(--border-color)] text-[var(--text-dim)] hover:text-[var(--text-primary)] shadow-sm'
+                  }`}
+                >
+                  {tab.label}
+                </button>
+             ))}
+          </div>
         </div>
 
         {/* Batch List */}
