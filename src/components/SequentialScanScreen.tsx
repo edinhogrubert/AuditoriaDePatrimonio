@@ -1,6 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { ArrowLeft, Trash2, Download, Copy, List, CheckCircle2, Play, Square } from 'lucide-react';
 import { CameraScanner } from './CameraScanner';
+import { shareFile } from '../utils/shareUtils';
 
 interface SequentialScanScreenProps {
   onBack: () => void;
@@ -56,12 +57,7 @@ export const SequentialScanScreen: React.FC<SequentialScanScreenProps> = ({ onBa
       csv += `${index + 1},${item.format},"${item.code}",${item.time}\n`;
     });
 
-    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `leituras_sequenciais_${Date.now()}.csv`;
-    link.click();
+    shareFile(csv, `leituras_sequenciais_${Date.now()}.csv`, 'text/csv');
   };
 
   const handleRemove = (id: string) => {

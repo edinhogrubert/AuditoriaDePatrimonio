@@ -1,31 +1,28 @@
-# Estabilização da Câmera e Lanterna (Universal)
+# Correção de Preview da Câmera (v2.10)
 
-Implementei uma série de correções críticas para garantir que a câmera abra instantaneamente e reconheça qualquer tipo de código de barras ou QR Code no seu dispositivo Android.
+Resolvi o problema da "tela preta" no scanner, garantindo que a imagem da câmera nativa seja exibida corretamente atrás da interface do aplicativo.
 
 ## Alterações Realizadas
 
-### 1. Garantia de Hardware (Google ML Kit)
-- **Instalação Automática**: Adicionei um verificador que detecta se o motor de escaneamento do Google está presente. Se não estiver, o app solicita a instalação silenciosa/automática ao Android.
-- **Suporte Universal**: Configurei o scanner para reconhecer explicitamente todos os formatos do mercado:
-    - **QR Codes**: QR, Data Matrix, Aztec, PDF 417.
-    - **Barras Industriais**: Code 39 (muito comum em patrimônio), Code 93, Code 128, ITF, Codabar.
-    - **Comerciais**: EAN-8, EAN-13, UPC-A, UPC-E.
+### 1. Transparência Dinâmica de Hardware
+- **`CameraScanner.tsx`**: Removi o fundo preto sólido (`bg-black`) do container da câmera. Agora ele fica transparente quando o scanner nativo está ativo, permitindo "ver através" do app até a lente.
+- **`index.css`**: Reforcei as regras globais de transparência para que `html`, `body` e o container principal do React (`#root`) não bloqueiem a imagem de fundo quando o scanner for disparado.
 
-### 2. Correção do Flash (Lanterna)
-- **Vínculo Direto**: Re-sincronizei o botão da lanterna (Zap) para que ele se comunique diretamente com o scanner ativo. Agora a luz só tentará acender quando o sensor da câmera estiver pronto.
+### 2. Layout "Split Screen" para Auditoria
+- **Interfaces de Scan**: Ajustei os componentes `VerificationScanScreen.tsx` e `BatchScanScreen.tsx`.
+- **Cabeçalho e Rodapé**: Apliquei cores sólidas com leve desfoque (`backdrop-blur`) e transparência parcial no cabeçalho e rodapé. Isso garante que os textos e a barra de progresso continuem legíveis enquanto o centro da tela exibe a câmera.
 
-### 3. Gerenciamento de Memória
-- **Liberação de Hardware**: Reforcei o encerramento da câmera ao trocar de tela. Isso evita o erro de "Câmera Ocupada" que impedia a reabertura do scanner.
+### 3. Sincronização de Rotas
+- **`App.tsx`**: Atualizei a lógica central para garantir que todas as telas que usam câmera (Leitura Rápida, Sequencial, Auditoria e Importação QR) desativem o gradiente de fundo do tema automaticamente ao serem abertas.
 
 ---
 
-## Como aplicar e testar:
+## Como testar:
 
-1.  No Android Studio, clique no ícone do **Elefante Azul** (Sync) no topo.
-2.  Clique no **Play verde** para reinstalar o app com as novas permissões de hardware.
-3.  **Teste de Campo**:
-    *   Tente ler um código de patrimônio antigo (**Code 39**).
-    *   Teste o botão de **Flash** em um local escuro.
-    *   Navegue entre as telas de auditoria para verificar se a câmera abre rápido em todas.
+1.  No Android Studio, clique no **Play verde**.
+2.  **Teste de Visão**:
+    *   Abra a **Leitura Rápida**. Você deve ver o cenário da câmera imediatamente.
+    *   Abra uma **Auditoria**. O centro da tela deve mostrar a câmera, com os dados de progresso flutuando na parte inferior.
+    *   Verifique se ao fechar a câmera, o fundo azul/gradiente do app volta ao normal.
 
-O sistema de visão agora está muito mais robusto e compatível com coletores de dados e smartphones modernos.
+A interface agora trabalha em harmonia com o hardware, permitindo uma experiência de auditoria muito mais intuitiva.

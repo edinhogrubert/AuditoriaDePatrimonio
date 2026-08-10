@@ -24,6 +24,7 @@ import {
 } from 'lucide-react';
 import { QrCodeExportModal } from './QrCodeExportModal';
 import { Batch, ScanItem, ExpectedItem } from '../types';
+import { shareFile } from '../utils/shareUtils';
 import {
   formatDateStr,
   formatTimeStr,
@@ -204,13 +205,11 @@ export const BatchDetailsScreen: React.FC<BatchDetailsScreenProps> = ({
       scans: scanItems,
       expected: expectedItems,
     };
-    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `lote_${batch.name.toLowerCase().replace(/[^a-z0-9]/gi, '_')}_${Date.now()}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
+    shareFile(
+      JSON.stringify(payload, null, 2),
+      `lote_${batch.name.toLowerCase().replace(/[^a-z0-9]/gi, '_')}_${Date.now()}.json`,
+      'application/json'
+    );
     setExportMenuOpen(false);
   };
 
@@ -887,7 +886,7 @@ export const BatchDetailsScreen: React.FC<BatchDetailsScreenProps> = ({
         deletePermission={getStoredSettings().deletePermission}
         itemBarcode={pendingDeleteItem?.barcode}
         onConfirmDelete={handleConfirmDelete}
-        onConfirmDeleteOnce={handleConfirmDeleteOnce}
+        onConfirmDeleteOnce={handleConfirmDeleteOnce}o
         onConfirmDeleteAlways={handleConfirmDeleteAlways}
       />
 

@@ -1,4 +1,5 @@
 import { Batch, ScanItem, ExpectedItem, AppSettings, BatchType, AuditLog, AuditLogType } from '../types';
+import { shareFile } from '../utils/shareUtils';
 
 const BATCHES_KEY = 'inventario_batches_v2';
 const SCAN_ITEMS_KEY = 'inventario_scan_items_v2';
@@ -577,14 +578,7 @@ export const formatTimeStr = (timestamp: number): string => {
 };
 
 const downloadCsv = (csvContent: string, filename: string) => {
-  const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.setAttribute('href', url);
-  link.setAttribute('download', filename);
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
+  shareFile(csvContent, filename, 'text/csv');
 };
 
 export const exportSingleBatchToCsv = (batch: Batch, items: ScanItem[]) => {

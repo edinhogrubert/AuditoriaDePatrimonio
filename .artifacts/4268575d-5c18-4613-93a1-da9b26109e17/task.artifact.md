@@ -1,4 +1,4 @@
-- [ ] Refatorar `CameraScanner.tsx` com suporte universal a formatos e check de hardware
-- [ ] Otimizar lógica do Flash (torch)
-- [ ] Validar encerramento de hardware no unmount
-- [ ] Build e Sincronização final
+- [x] Refinar transparência no `index.css`
+- [x] Remover fundos sólidos no `CameraScanner.tsx`
+- [x] Atualizar lógica de transparência no `App.tsx`
+- [ ] Testar build e sincronizar

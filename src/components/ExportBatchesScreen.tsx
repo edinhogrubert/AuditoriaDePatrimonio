@@ -3,6 +3,7 @@ import { ArrowLeft, Download, Check, FileJson, QrCode } from 'lucide-react';
 import { Batch, ScanItem } from '../types';
 import { formatDateStr, getScanCountForBatch, exportMultipleBatchesToCsv, getExpectedItemsForBatch } from '../services/storage';
 import { QrCodeExportModal } from './QrCodeExportModal';
+import { shareFile } from '../utils/shareUtils';
 
 interface ExportBatchesScreenProps {
   batches: Batch[];
@@ -60,13 +61,11 @@ export const ExportBatchesScreen: React.FC<ExportBatchesScreenProps> = ({
     const data = getSelectedBatchesData();
     if (data.length === 0) return;
 
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const link = document.body.appendChild(document.createElement('a'));
-    link.href = url;
-    link.download = `export_lotes_${Date.now()}.json`;
-    link.click();
-    document.body.removeChild(link);
+    shareFile(
+      JSON.stringify(data, null, 2),
+      `export_lotes_${Date.now()}.json`,
+      'application/json'
+    );
   };
 
   const handleExportQr = () => {

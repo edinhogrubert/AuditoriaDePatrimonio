@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ArrowLeft, Copy, Share2, Trash2, CheckCircle2, Play } from 'lucide-react';
 import { CameraScanner } from './CameraScanner';
+import { shareText } from '../utils/shareUtils';
 
 interface ScanScreenProps {
   onBack: () => void;
@@ -25,13 +26,8 @@ export const ScanScreen: React.FC<ScanScreenProps> = ({ onBack }) => {
   };
 
   const handleShare = () => {
-    if (scannedResult && navigator.share) {
-      navigator.share({
-        title: 'Código Escaneado',
-        text: scannedResult.code,
-      }).catch(() => {});
-    } else if (scannedResult) {
-      handleCopy();
+    if (scannedResult) {
+      shareText(scannedResult.code, 'Código Escaneado');
     }
   };
 
