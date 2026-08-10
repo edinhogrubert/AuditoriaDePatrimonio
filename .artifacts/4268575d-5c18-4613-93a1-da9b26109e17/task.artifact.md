@@ -1,0 +1,4 @@
+- [ ] Refatorar `CameraScanner.tsx` com suporte universal a formatos e check de hardware
+- [ ] Otimizar lógica do Flash (torch)
+- [ ] Validar encerramento de hardware no unmount
+- [ ] Build e Sincronização final

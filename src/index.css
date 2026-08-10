@@ -146,14 +146,22 @@ body {
   opacity: 0.3;
 }
 
-/* Scanner Transparency */
+/* Scanner Transparency - Critical for ML Kit */
 html.barcode-scanner-active,
 html.barcode-scanner-active body,
+html.barcode-scanner-active #root,
 body.barcode-scanner-active,
 body.barcode-scanner-active #root,
 body.barcode-scanner-active main,
 body.barcode-scanner-active footer {
   background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+}
+
+.camera-view-through {
+    background: transparent !important;
+    background-color: transparent !important;
 }
 
 /* Soft Elevation for Cards */

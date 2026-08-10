@@ -132,9 +132,9 @@ export const BatchListScreen: React.FC<BatchListScreenProps> = ({
           </div>
         )}
 
-        {/* Custom Tabs - Smart Split Layout */}
+        {/* Custom Tabs - 1+4 Layout */}
         <div className="flex flex-col gap-2 shrink-0">
-          {/* Primary Filter: Todos */}
+          {/* Row 1: Todos (Full Width) */}
           <button
             onClick={() => setFilterType('ALL')}
             className={`w-full py-3 text-[10px] font-black uppercase tracking-[0.2em] rounded-2xl transition-all duration-200 border ${
@@ -146,8 +146,8 @@ export const BatchListScreen: React.FC<BatchListScreenProps> = ({
             Todos os Arquivos
           </button>
 
-          {/* Secondary Filters Grid: 2x2 */}
-          <div className="grid grid-cols-2 gap-2">
+          {/* Row 2: Others (All in one line) */}
+          <div className="flex gap-1.5 overflow-x-auto pb-1 no-scrollbar">
              {(
                [
                  { id: 'PENDING', label: 'Pendentes' },
@@ -159,10 +159,10 @@ export const BatchListScreen: React.FC<BatchListScreenProps> = ({
                 <button
                   key={tab.id}
                   onClick={() => setFilterType(tab.id)}
-                  className={`py-3 text-[9px] font-black uppercase tracking-[0.1em] rounded-2xl transition-all duration-200 border ${
+                  className={`flex-1 min-w-[85px] py-2.5 text-[8px] font-black uppercase tracking-wider rounded-xl transition-all duration-200 border whitespace-nowrap ${
                     filterType === tab.id
-                    ? `${getTabBgColor(tab.id)} border-transparent text-white shadow-lg`
-                    : 'bg-[var(--bg-secondary)] border-[var(--border-color)] text-[var(--text-dim)] hover:text-[var(--text-primary)] shadow-sm'
+                    ? `${getTabBgColor(tab.id)} border-transparent text-white shadow-md`
+                    : 'bg-[var(--bg-secondary)] border-[var(--border-color)] text-[var(--text-dim)] hover:text-[var(--text-primary)]'
                   }`}
                 >
                   {tab.label}

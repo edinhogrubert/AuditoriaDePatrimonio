@@ -144,7 +144,7 @@ export function App() {
     : [];
 
   return (
-    <div className={`min-h-screen font-['Inter',sans-serif] transition-colors ${currentScreen === 'sequential_scan' || currentScreen === 'scan' || currentScreen === 'verification_scan' || (currentScreen === 'qr_import' && !activeBatchId) ? 'bg-transparent' : 'bg-[var(--bg-gradient)]'}`}>
+    <div className={`min-h-screen font-['Inter',sans-serif] transition-colors ${['sequential_scan', 'scan', 'verification_scan', 'batch_scan', 'qr_import'].includes(currentScreen) ? 'bg-transparent' : 'bg-[var(--bg-gradient)]'}`}>
       {currentScreen === 'menu' && (
         <MainScreen
           onNavigate={(screen, filter) => {

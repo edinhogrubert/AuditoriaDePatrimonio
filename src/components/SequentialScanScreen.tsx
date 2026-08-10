@@ -73,9 +73,9 @@ export const SequentialScanScreen: React.FC<SequentialScanScreenProps> = ({ onBa
   };
 
   return (
-    <div className={`relative w-full h-screen text-white flex flex-col select-none overflow-hidden max-w-md mx-auto ${isScanning ? 'bg-transparent' : 'bg-[#0A0D14]'}`}>
+    <div className={`relative w-full h-screen text-white flex flex-col select-none overflow-hidden max-w-md mx-auto ${isScanning ? 'bg-transparent camera-view-through' : 'bg-[#0A0D14]'}`}>
       {/* Top Header */}
-      <div className={`absolute top-0 inset-x-0 z-30 p-4 flex items-center justify-between ${isScanning ? 'bg-gradient-to-b from-black/80 to-transparent' : ''}`}>
+      <div className={`absolute top-0 inset-x-0 z-30 p-4 flex items-center justify-between ${isScanning ? 'bg-[#0A0D14]/80 backdrop-blur-md border-b border-white/5' : ''}`}>
         <button
           onClick={onBack}
           className="p-2.5 rounded-full bg-[#1A1F26]/80 text-white border border-gray-800 backdrop-blur-md active:scale-95 transition-all shadow-lg"

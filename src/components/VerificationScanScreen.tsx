@@ -49,10 +49,10 @@ export const VerificationScanScreen: React.FC<VerificationScanScreenProps> = ({
   };
 
   return (
-    <div className="relative w-full h-screen bg-transparent text-white flex flex-col select-none overflow-hidden max-w-md mx-auto">
+    <div className="relative w-full h-screen bg-transparent text-white flex flex-col select-none overflow-hidden max-w-md mx-auto camera-view-through">
       
       {/* Top Overlay Header */}
-      <header className="relative z-20 w-full flex justify-between items-center px-4 h-14 bg-gradient-to-b from-black/70 to-transparent text-white">
+      <header className="relative z-20 w-full flex justify-between items-center px-4 h-14 bg-[#0A0D14]/80 backdrop-blur-md text-white border-b border-white/5">
         <button
           onClick={onBack}
           aria-label="Go Back"
